@@ -49,7 +49,11 @@ const translations = {
         guarFirstLabel: "قيمة الشيك الأول (سنوي)",
         guarFirstDesc: "القسط الفعلي + 11 قسط",
         showGuarCheques: "عرض مبالغ شيكات الضامن",
-        footerCredit: "تطوير وبناء المبرمج:"
+        heroLabel: "قيمة الشيك الأول للعميل",
+        heroSub: "يتضمن فائدة فترة السماح + 5 أقساط",
+        chartTitle: "توزيع قيم الشيكات على تواريخ الاستحقاق",
+        footerRights: "جميع الحقوق محفوظة",
+        footerCredit: "developed by"
     },
     en: {
         pageTitle: "Investo Cheque Pro | Project Calculator",
@@ -90,7 +94,11 @@ const translations = {
         guarFirstLabel: "First Cheque Value (Annual)",
         guarFirstDesc: "Actual installment + 11 installments",
         showGuarCheques: "Show Guarantor Cheques",
-        footerCredit: "Developed by:"
+        heroLabel: "Client's First Cheque Value",
+        heroSub: "Includes grace-period interest + 5 installments",
+        chartTitle: "Cheque amounts distribution by due date",
+        footerRights: "All rights reserved",
+        footerCredit: "developed by"
     }
 };
 

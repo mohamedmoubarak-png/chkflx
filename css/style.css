@@ -11,44 +11,47 @@
 /* 1. Design System & Theming        */
 /* ================================= */
 :root {
-    /* Light Mode — ChequeFlex Palette */
-    --bg-body: #EEF2F8;
-    --bg-gradient: linear-gradient(135deg, #EEF2F8 0%, #D8E4F4 100%);
-    --bg-card: rgba(255, 255, 255, 0.92);
+    /* Light Mode — ChequeFlex "Premium Fintech" Palette */
+    --bg-body: #F4F7FC;
+    --bg-gradient: linear-gradient(135deg, #F4F7FC 0%, #E4ECF8 100%);
+    --bg-card: #FFFFFF;
     --text-main: #0B1D3A;
-    --text-muted: #4A6080;
+    --text-muted: #56708F;
     --border-color: rgba(197, 210, 232, 0.9);
     --navy-blue: #0B1D3A;
-    --royal-gold: #1D50D8;           /* Electric Blue */
-    --royal-gold-hover: #1640B8;     /* Darker blue hover */
+    --royal-gold: #2456E5;           /* Brand Electric Blue */
+    --royal-gold-hover: #1A45C8;     /* Darker blue hover */
     --slate-gray: #7A90B0;
-    --success: #0EA875;
+    --success: #0E9F6E;
     --danger: #EF4444;
     --danger-bg: #FEF2F2;
     --input-bg: #F0F4FB;
-    --shadow-sm: 0 1px 3px rgba(13,37,80,0.08);
-    --shadow-md: 0 4px 12px rgba(13,37,80,0.12);
+    --shadow-sm: 0 1px 3px rgba(13,37,80,0.06), 0 4px 16px rgba(13,37,80,0.05);
+    --shadow-md: 0 6px 18px rgba(13,37,80,0.10), 0 12px 36px rgba(13,37,80,0.08);
     --border-radius: 16px;
-    --focus-ring: 0 0 0 3px rgba(29, 80, 216, 0.25);
+    --focus-ring: 0 0 0 3px rgba(36, 86, 229, 0.25);
     --highlight-row: #EEF4FF;
     --chrome-silver: #C5D0E4;
-    --electric-blue: #1D50D8;
+    --electric-blue: #2456E5;
     --deep-navy: #081628;
+    /* Gold accent — monetary value emphasis */
+    --gold: #B8860B;
+    --gold-bg: #FBF3DE;
 }
 
 [data-theme="dark"] {
-    /* Dark Mode — ChequeFlex Palette */
-    --bg-body: #040D1A;
-    --bg-gradient: linear-gradient(135deg, #040D1A 0%, #071628 100%);
-    --bg-card: rgba(8, 22, 40, 0.85);
-    --text-main: #E8EEF8;
-    --text-muted: #7A9AC0;
-    --border-color: rgba(17, 32, 64, 0.9);
+    /* Dark Mode — ChequeFlex "Premium Fintech" Palette */
+    --bg-body: #050E1F;
+    --bg-gradient: linear-gradient(135deg, #050E1F 0%, #0A1A30 100%);
+    --bg-card: #0C1B33;
+    --text-main: #EAF1FB;
+    --text-muted: #8AA6CC;
+    --border-color: rgba(59, 111, 245, 0.18);
     --navy-blue: #4A7FE8;
-    --royal-gold: #2B62F0;           /* Vivid blue on dark */
-    --royal-gold-hover: #1D50D8;
+    --royal-gold: #3B6FF5;           /* Vivid blue on dark */
+    --royal-gold-hover: #2456E5;
     --slate-gray: #5A7898;
-    --success: #0EA875;
+    --success: #10B981;
     --danger: #EF4444;
     --danger-bg: #1A0A0A;
     --input-bg: rgba(13, 31, 60, 0.8);
@@ -56,8 +59,11 @@
     --shadow-sm: 0 4px 10px rgba(0,0,0,0.4);
     --shadow-md: 0 10px 30px rgba(0,0,0,0.55);
     --chrome-silver: #8AAAD4;
-    --electric-blue: #2B62F0;
+    --electric-blue: #3B6FF5;
     --deep-navy: #040D1A;
+    /* Gold accent — monetary value emphasis */
+    --gold: #E0B43A;
+    --gold-bg: rgba(224, 180, 58, 0.10);
 }
 
 * {
@@ -206,13 +212,21 @@ input[type=number] { -moz-appearance: textfield; }
 .btn-icon:hover { background: var(--border-color); }
 
 .btn-primary {
+    background-image: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-hover));
     background-color: var(--royal-gold);
-    color: #111;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(36, 86, 229, 0.30);
 }
 
 .btn-primary:hover {
-    background-color: var(--royal-gold-hover);
+    background-image: linear-gradient(135deg, var(--royal-gold-hover), var(--royal-gold-hover));
     transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(36, 86, 229, 0.40);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(36, 86, 229, 0.30);
 }
 
 .btn-success {
@@ -259,6 +273,19 @@ input[type=number] { -moz-appearance: textfield; }
         min-height: 38px;
         padding: 8px;
     }
+
+    /* Results sizing on phones */
+    .hero-card { padding: 22px 20px; }
+    .hero-card .hero-value { font-size: 2.1rem; }
+    .stat-card { padding: 18px 18px; }
+    .stat-card .value { font-size: 1.6rem; }
+    .chart-canvas-wrap { height: 220px; }
+    .section-title { font-size: 1rem; }
+}
+
+/* Comfortable single-column results on tablets/phones */
+@media (max-width: 900px) {
+    .stats-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
 /* ================================= */
@@ -443,15 +470,26 @@ input[type=number] { -moz-appearance: textfield; }
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    padding: 20px 24px;
+    padding: 22px 24px;
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: cardIn 0.45s ease both;
+}
+
+/* Stagger entrance of stat cards */
+.stats-grid .stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stats-grid .stat-card:nth-child(2) { animation-delay: 0.13s; }
+.stats-grid .stat-card:nth-child(3) { animation-delay: 0.21s; }
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .stat-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-md);
 }
 
@@ -464,8 +502,29 @@ input[type=number] { -moz-appearance: textfield; }
 [dir="rtl"] .stat-card::before { right: 0; }
 [dir="ltr"] .stat-card::before { left: 0; }
 
-.stat-card.gold::before { background: linear-gradient(180deg, #4A7FE8, var(--electric-blue)); }
+.stat-card.gold::before { background: linear-gradient(180deg, #E6C661, var(--gold)); }
 .stat-card.emerald::before { background-color: var(--success); }
+
+/* Icon badge at top of each stat card */
+.stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background: rgba(36, 86, 229, 0.12);
+    color: var(--electric-blue);
+}
+.stat-card.gold .stat-icon {
+    background: var(--gold-bg);
+    color: var(--gold);
+}
+.stat-card.emerald .stat-icon {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success);
+}
 
 .stat-card h4 {
     font-size: 0.95rem;
@@ -474,16 +533,235 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .stat-card .value {
-    font-size: 1.6rem;
+    font-size: 1.9rem;
     font-weight: 800;
     color: var(--text-main);
     margin-bottom: 4px;
+    letter-spacing: -0.5px;
+    transition: transform 0.25s ease;
+}
+
+.stat-card.gold .value { color: var(--gold); }
+.stat-card.emerald .value { color: var(--success); }
+
+/* Brief pulse when a value updates */
+.stat-card .value.value-pulse {
+    animation: valuePulse 0.5s ease;
+}
+@keyframes valuePulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
 }
 
 .stat-card .desc {
     font-size: 0.8rem;
     color: var(--slate-gray);
     font-weight: 600;
+}
+
+/* Hero Summary Card — highlights the headline number */
+.hero-card {
+    background: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-hover));
+    border-radius: var(--border-radius);
+    padding: 26px 28px;
+    margin-bottom: 24px;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(36, 86, 229, 0.28);
+    position: relative;
+    overflow: hidden;
+    animation: cardIn 0.45s ease both;
+}
+.hero-card::after {
+    content: '';
+    position: absolute;
+    top: -40px;
+    inset-inline-end: -30px;
+    width: 160px;
+    height: 160px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 50%;
+}
+.hero-card .hero-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.hero-card .hero-value {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    transition: transform 0.25s ease;
+}
+.hero-card .hero-value.value-pulse { animation: valuePulse 0.5s ease; }
+.hero-card .hero-sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-top: 6px;
+}
+
+/* ── Accordion Result Cards (click the card to reveal details) ── */
+.accordion-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    animation: cardIn 0.45s ease both;
+}
+.accordion-head {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 22px 26px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-hover));
+    transition: filter 0.2s;
+}
+.accordion-card.emerald .accordion-head {
+    background: linear-gradient(135deg, var(--success), #0B8A5E);
+}
+.accordion-head:hover { filter: brightness(1.06); }
+.accordion-head:active { filter: brightness(0.97); }
+
+.acc-head-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    text-align: start;
+}
+.acc-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    opacity: 0.95;
+}
+.acc-value {
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    transition: transform 0.25s ease;
+}
+.acc-value.value-pulse { animation: valuePulse 0.5s ease; }
+.acc-sub { font-size: 0.82rem; font-weight: 600; opacity: 0.85; }
+
+.acc-chevron {
+    flex-shrink: 0;
+    opacity: 0.9;
+    transition: transform 0.35s ease;
+}
+.accordion-card.open .acc-chevron { transform: rotate(180deg); }
+
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    background: var(--bg-card);
+    transition: max-height 0.4s ease;
+}
+.accordion-card.open .accordion-body { max-height: 6000px; }
+.accordion-inner { padding: 18px 18px 16px; }
+
+/* Stacked mini cards in clear order: count -> first -> remaining */
+.accordion-inner .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 0;
+}
+/* Compact mini cards — clean solid background (no diagonal banding) */
+.accordion-inner .stat-card { padding: 15px 18px; }
+.accordion-inner .stat-card .stat-icon { width: 32px; height: 32px; margin-bottom: 8px; border-radius: 10px; }
+.accordion-inner .stat-card .stat-icon svg { width: 17px; height: 17px; }
+.accordion-inner .stat-card h4 { font-size: 0.85rem; margin-bottom: 5px; }
+.accordion-inner .stat-card .value { font-size: 1.45rem; }
+.accordion-inner .stat-card .desc { font-size: 0.74rem; }
+
+/* Expandable "remaining cheques" card */
+.stat-card.expandable { cursor: pointer; }
+.stat-card.expandable .card-chevron {
+    position: absolute;
+    top: 18px;
+    inset-inline-end: 18px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+.stat-card.expandable.open .card-chevron { transform: rotate(180deg); }
+
+.cheque-sublist {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+}
+.stat-card.expandable.open .cheque-sublist {
+    max-height: 4000px;
+    opacity: 1;
+    margin-top: 14px;
+}
+.sublist-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    margin-bottom: 8px;
+}
+.sublist-row:last-child { margin-bottom: 0; }
+.sublist-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sublist-num { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+.sublist-date { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+.sublist-amount { font-weight: 800; font-size: 1rem; color: var(--gold); white-space: nowrap; }
+.stat-card.emerald .sublist-amount { color: var(--success); }
+
+/* Chart Card — payment distribution visualization */
+.chart-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    animation: cardIn 0.45s ease both;
+}
+.chart-card .chart-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.chart-canvas-wrap {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+/* Sticky form on desktop so it stays visible while scrolling results */
+@media (min-width: 901px) {
+    .main-grid > aside.card {
+        position: sticky;
+        top: 24px;
+    }
 }
 
 /* ================================= */
@@ -576,10 +854,30 @@ tr.current-month:hover {
         font-size: 1.1rem;
     }
 
+    /* Force accordion cards open and neutral for printing */
+    .accordion-card { border: none !important; box-shadow: none !important; margin-bottom: 14px; }
+    .accordion-body { max-height: none !important; overflow: visible !important; }
+    .accordion-inner { padding: 0 !important; }
+    .accordion-head {
+        background: #fff !important; color: #000 !important;
+        padding: 0 0 8px 0 !important; border-bottom: 2px solid #081628 !important;
+        margin-bottom: 12px;
+    }
+    .acc-value { font-size: 1.3rem !important; }
+    .acc-chevron { display: none !important; }
+    .card-chevron { display: none !important; }
+    .cheque-sublist { display: none !important; }     /* dedicated print tables cover all cheques */
+    .accordion-inner .stat-card { background-image: none !important; }
+
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-card { border: 1px solid #ccc; break-inside: avoid; }
+    .stat-card { border: 1px solid #ccc; break-inside: avoid; padding: 14px 16px; }
     .stat-card::before { display: none; }
-    
+    .stat-card .stat-icon { display: none; }            /* cleaner printed cards */
+    .stat-card .value,
+    .stat-card.gold .value,
+    .stat-card.emerald .value { color: #000 !important; }  /* high contrast on paper */
+    .section-title { color: #000 !important; font-weight: 800; margin-top: 16px; }
+
     .table-container { display: block !important; border: none; }
     .table-responsive { max-height: none; overflow: visible; }
     table { break-inside: auto; border: 1px solid #000; }

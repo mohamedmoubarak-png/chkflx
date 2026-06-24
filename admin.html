@@ -2,6 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://ohyxylqwpiraiwtezmuy.supabase.co wss://ohyxylqwpiraiwtezmuy.supabase.co https://*.google-analytics.com https://*.analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXRSER8TMQ"></script>
+    <script src="js/analytics.js"></script>
+    <!-- Anti-clickjacking + frame-busting -->
+    <script src="js/boot-lite.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة الإدارة | ChequeFlex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,17 +17,20 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --navy-blue:    #081628;
-            --navy-mid:     #0D1F3C;
-            --navy-light:   #1A3358;
-            --royal-gold:   #2B62F0;          /* Electric Blue */
-            --gold-light:   #4A7FE8;          /* Lighter blue */
-            --text-main:    #E8EEF8;
-            --text-muted:   #7A9AC0;
-            --border-color: rgba(74, 127, 232, 0.12);
+            --navy-blue:    #050E1F;          /* Page background */
+            --navy-mid:     #0C1B33;          /* Card background */
+            --navy-light:   #14264A;          /* Elevated surfaces */
+            --royal-gold:   #3B6FF5;          /* Brand Electric Blue */
+            --gold-light:   #5B86F8;          /* Lighter blue */
+            --gold:         #E0B43A;          /* Premium gold accent */
+            --gold-bg:      rgba(224,180,58,0.10);
+            --text-main:    #EAF1FB;
+            --text-muted:   #8AA6CC;
+            --border-color: rgba(59, 111, 245, 0.18);
             --danger:   #EF4444;
-            --success:  #0EA875;
+            --success:  #10B981;
             --slate-gray: #5A7898;
+            --shadow-card: 0 10px 30px rgba(0,0,0,0.45);
         }
 
         body {
@@ -28,29 +38,33 @@
             background: var(--navy-blue);
             color: var(--text-main);
             min-height: 100vh;
-            background-image: radial-gradient(ellipse at 20% 50%, rgba(29,80,216,0.07) 0%, transparent 50%),
-                              radial-gradient(ellipse at 80% 80%, rgba(74,127,232,0.04) 0%, transparent 50%);
+            background-image: radial-gradient(ellipse at 20% 0%, rgba(59,111,245,0.10) 0%, transparent 55%),
+                              radial-gradient(ellipse at 90% 90%, rgba(91,134,248,0.06) 0%, transparent 50%);
         }
 
         /* HEADER */
         .admin-bar {
-            background: var(--navy-mid);
+            background: rgba(12, 27, 51, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
             padding: 0 32px;
-            height: 64px;
+            min-height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
             position: sticky; top: 0; z-index: 100;
         }
-        .brand { display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:800; }
+        .brand { display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:800; min-width:0; }
         .brand span { color: var(--royal-gold); }
         .brand .badge {
-            background: rgba(212,175,55,0.15); color: var(--royal-gold);
+            background: rgba(59,111,245,0.15); color: var(--royal-gold);
             font-size:0.7rem; padding:3px 10px; border-radius:20px;
-            font-weight:700; border:1px solid rgba(212,175,55,0.3);
+            font-weight:700; border:1px solid rgba(59,111,245,0.3); white-space:nowrap;
         }
-        .header-right { display:flex; align-items:center; gap:12px; }
+        .header-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
         .user-chip {
             display:flex; align-items:center; gap:8px;
             background:rgba(255,255,255,0.05); border:1px solid var(--border-color);
@@ -81,19 +95,19 @@
         .page-subtitle { color:var(--text-muted); font-size:0.9rem; margin-bottom:36px; }
 
         /* CARDS */
-        .card { background:var(--navy-mid); border:1px solid var(--border-color); border-radius:16px; overflow:hidden; margin-bottom:28px; }
+        .card { background:var(--navy-mid); border:1px solid var(--border-color); border-radius:16px; overflow:hidden; margin-bottom:28px; box-shadow:var(--shadow-card); }
         .card-header {
             padding:18px 24px; border-bottom:1px solid var(--border-color);
             display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem;
+            background: rgba(255,255,255,0.02);
         }
         .card-header svg { color:var(--royal-gold); }
         .card-body { padding:24px; }
+        /* Horizontal scroll wrapper so the table never breaks on small screens */
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         /* ADD FORM */
         .add-form { display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:end; }
-        @media (max-width:640px) {
-            .add-form { grid-template-columns:1fr; }
-        }
         .form-group label { display:block; font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; }
         .form-group input {
             width:100%; padding:11px 14px; background:var(--navy-blue);
@@ -116,7 +130,7 @@
         .btn-add:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
         /* TABLE */
-        .products-table { width:100%; border-collapse:collapse; }
+        .products-table { width:100%; border-collapse:collapse; min-width:520px; }
         .products-table th {
             text-align:right; padding:12px 16px; font-size:0.8rem; font-weight:700;
             color:var(--text-muted); background:rgba(255,255,255,0.02);
@@ -171,16 +185,41 @@
         .toast.show  { transform:translateX(-50%) translateY(0); }
         .toast.success { border-color:rgba(16,185,129,0.5); }
         .toast.error   { border-color:rgba(239,68,68,0.5); }
+
+        /* ============================================================
+           RESPONSIVE — Tablet & Mobile
+           ============================================================ */
+        @media (max-width:760px) {
+            .admin-bar { padding:10px 16px; }
+            .admin-main { padding:28px 16px; }
+            .brand { font-size:1.1rem; gap:8px; }
+            .brand .badge { font-size:0.62rem; padding:2px 8px; }
+            .header-right { gap:8px; }
+            /* Hide username chip text on small screens to save space */
+            .user-chip { display:none; }
+            .btn-back, .btn-logout { padding:8px 12px; font-size:0.8rem; }
+        }
+
+        @media (max-width:640px) {
+            .add-form { grid-template-columns:1fr; }
+            .btn-add { width:100%; padding:13px; }
+        }
+
+        @media (max-width:480px) {
+            .admin-bar { gap:8px; }
+            .page-title { font-size:1.25rem; }
+            .page-subtitle { font-size:0.82rem; margin-bottom:24px; }
+            .card-body { padding:18px; }
+            .card-header { padding:14px 18px; font-size:0.95rem; }
+            .btn-back, .btn-logout { padding:8px 10px; font-size:0.75rem; }
+            .toast { width:calc(100% - 32px); white-space:normal; text-align:center; }
+        }
     </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
-    <!-- ① Auth guard — sync, runs before browser renders anything -->
-    <script>
-        if (sessionStorage.getItem('investo_auth') !== 'true') {
-            window.location.href = 'login.html';
-        }
-    </script>
+    <!-- Auth guard runs in js/admin.js (Supabase session). The page stays hidden
+         until a valid session is confirmed; otherwise it redirects to login. -->
 
     <!-- Header -->
     <header class="admin-bar">
@@ -275,7 +314,7 @@
                     </button>
                 </div>
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-top:12px;">
-                    💡 القيمة المُدخلة (مثال: <strong>7.5</strong>) تُخزَّن في Firebase كـ <strong>0.075</strong>.
+                    💡 القيمة المُدخلة (مثال: <strong>7.5</strong>) تُخزَّن في Supabase كـ <strong>0.075</strong>.
                     إذا كان الكود موجوداً، يتم تحديث نسبته تلقائياً.
                 </p>
             </div>
@@ -290,6 +329,7 @@
                 المنتجات الحالية
             </div>
             <div class="card-body" style="padding:0;">
+              <div class="table-scroll">
                 <table class="products-table">
                     <thead>
                         <tr>
@@ -300,9 +340,10 @@
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
-                        <tr><td colspan="4" class="empty-state">⏳ جارٍ الاتصال بـ Firebase...</td></tr>
+                        <tr><td colspan="4" class="empty-state">⏳ جارٍ الاتصال بـ Supabase...</td></tr>
                     </tbody>
                 </table>
+              </div>
             </div>
         </div>
     </main>
@@ -310,222 +351,9 @@
     <!-- Toast notification -->
     <div class="toast" id="toast"></div>
 
-    <!--
-        ② SINGLE <script type="module">
-        ───────────────────────────────────────────────────────────
-        WHY module?
-          • Modules are deferred — run after HTML is parsed, DOM is ready
-          • We import saveProduct / listenToProducts DIRECTLY (no window.* bridge)
-          • All buttons are wired with addEventListener → no onclick="" attributes
-          • No race condition between module loading and button clicks
-        ───────────────────────────────────────────────────────────
-    -->
-    <script type="module">
-        import { saveProduct, listenToProducts, getProducts } from './js/products.js';
-
-        import { db } from './js/firebase.js';
-        import { doc, deleteDoc }
-            from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-        /* ── helpers ──────────────────────────────────────── */
-        function $(id) { return document.getElementById(id); }
-
-        function showToast(msg, type = 'success') {
-            const t = $('toast');
-            t.textContent = msg;
-            t.className   = `toast ${type} show`;
-            setTimeout(() => t.classList.remove('show'), 4500);
-        }
-
-        /* ── 1. Display username ─────────────────────────── */
-        $('currentUser').textContent =
-            sessionStorage.getItem('investo_user') || 'مدير';
-
-        /* ── 2. Render products table ────────────────────── */
-        function renderTable(productsMap) {
-            const tbody   = $('productsTableBody');
-            const entries = Object.values(productsMap || {});
-
-            if (entries.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="4" class="empty-state">' +
-                    'لا توجد منتجات بعد — أضف IS18 بنسبة 5 للبدء.' +
-                    '</td></tr>';
-                return;
-            }
-
-            entries.sort((a, b) => String(a.code).localeCompare(String(b.code)));
-
-            tbody.innerHTML = entries.map(p => {
-                // Firebase stores decimal (0.075); display as percent (7.500)
-                const pct = (Number(p.rate) * 100).toFixed(3);
-                return `
-                <tr>
-                    <td><span class="code-badge">${p.code}</span></td>
-                    <td style="font-weight:700;color:var(--royal-gold);">${pct}%</td>
-                    <td>
-                        <input class="rate-input" type="number"
-                               value="${pct}"
-                               min="0.001" max="100" step="0.001"
-                               id="rate-${p.code}"
-                               title="أدخل النسبة كنسبة مئوية">
-                    </td>
-                    <td>
-                        <div class="actions-cell">
-                            <button class="btn-save-row"
-                                    data-save="${p.code}">حفظ</button>
-                            <button class="btn-delete-row"
-                                    data-del="${p.code}">حذف</button>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
-
-            // Wire row buttons with event delegation
-            tbody.querySelectorAll('[data-save]').forEach(btn =>
-                btn.addEventListener('click', () => saveRow(btn.dataset.save))
-            );
-            tbody.querySelectorAll('[data-del]').forEach(btn =>
-                btn.addEventListener('click', () => deleteRow(btn.dataset.del))
-            );
-        }
-
-        /* ── 3. Add / Update product ─────────────────────── */
-        async function addProduct() {
-            const codeEl = $('newCode');
-            const rateEl = $('newRate');
-
-            // Clear previous errors
-            ['newCode', 'newRate'].forEach(id => {
-                $(id).classList.remove('invalid');
-                $('err-' + id).style.display = 'none';
-            });
-
-            const code    = codeEl.value.trim().toUpperCase().replace(/\s+/g, '');
-            const percent = parseFloat(rateEl.value);
-
-            let ok = true;
-            if (!code) {
-                codeEl.classList.add('invalid');
-                $('err-newCode').style.display = 'block';
-                ok = false;
-            }
-            if (isNaN(percent) || percent <= 0 || percent > 100) {
-                rateEl.classList.add('invalid');
-                $('err-newRate').style.display = 'block';
-                ok = false;
-            }
-            if (!ok) return;
-
-            // Convert percentage → decimal before storing
-            const decimalRate = percent / 100;   // e.g. 7.5 → 0.075
-
-            const btn = $('addBtn');
-            const origHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.textContent = 'جارٍ الحفظ...';
-
-            try {
-                await saveProduct(code, decimalRate);
-                codeEl.value = '';
-                rateEl.value = '';
-                showToast(
-                    `✓ تم حفظ "${code}" — Firebase: rate = ${decimalRate}`,
-                    'success'
-                );
-                // listenToProducts will auto-refresh the table
-            } catch (err) {
-                console.error('[addProduct]', err);
-                showToast('خطأ أثناء الحفظ: ' + err.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = origHTML;
-            }
-        }
-
-        /* ── 4. Save existing row ────────────────────────── */
-        async function saveRow(code) {
-            const input   = $('rate-' + code);
-            const percent = parseFloat(input?.value);
-
-            if (!input || isNaN(percent) || percent <= 0 || percent > 100) {
-                showToast('نسبة غير صحيحة!', 'error');
-                return;
-            }
-
-            const decimalRate = percent / 100;
-            try {
-                await saveProduct(code, decimalRate);
-                showToast(
-                    `✓ "${code}" → ${percent}%  (Firebase: ${decimalRate})`,
-                    'success'
-                );
-            } catch (err) {
-                console.error('[saveRow]', err);
-                showToast('خطأ أثناء الحفظ: ' + err.message, 'error');
-            }
-        }
-
-        /* ── 5. Delete row ───────────────────────────────── */
-        async function deleteRow(code) {
-            if (!confirm(`حذف المنتج "${code}" نهائياً؟`)) return;
-            try {
-                await deleteDoc(doc(db, 'products', code));
-                showToast(`تم حذف "${code}"`, 'success');
-            } catch (err) {
-                console.error('[deleteRow]', err);
-                showToast('خطأ أثناء الحذف: ' + err.message, 'error');
-            }
-        }
-
-        /* ── 6. Logout ───────────────────────────────────── */
-        function logout() {
-            sessionStorage.removeItem('investo_auth');
-            sessionStorage.removeItem('investo_user');
-            window.location.href = 'login.html';
-        }
-
-        /* ── 7. Wire all buttons ─────────────────────────── */
-        $('addBtn').addEventListener('click', addProduct);
-        $('logoutBtn').addEventListener('click', logout);
-
-        // Enter key submits the add-form
-        ['newCode', 'newRate'].forEach(id => {
-            $(id).addEventListener('keydown', e => {
-                if (e.key === 'Enter') addProduct();
-            });
-        });
-
-        /* ── 8. Load products — two-phase approach ───────── */
-        //  Phase 1: getProducts() — immediate, shows data right away
-        //  Phase 2: listenToProducts() — keeps table live on any change
-
-        const tbody = $('productsTableBody');
-
-        function showTableError(err) {
-            console.error('[Admin] Firebase read error:', err);
-            tbody.innerHTML =
-                `<tr><td colspan="4" class="empty-state" style="color:#ef4444;">
-                    ⚠️ خطأ في القراءة من Firebase:<br>
-                    <span style="font-size:0.8rem;opacity:0.8;">${err.code || ''} — ${err.message}</span>
-                 </td></tr>`;
-        }
-
-        // Phase 1 — fetch once immediately so table is never stuck on "loading"
-        getProducts()
-            .then(map => {
-                renderTable(map);  // shows IS18 (or whatever is in Firestore)
-            })
-            .catch(err => {
-                showTableError(err);
-            });
-
-        // Phase 2 — live listener for real-time updates (add/edit/delete)
-        listenToProducts(
-            map  => renderTable(map),   // success callback
-            err  => showTableError(err) // error callback (now properly handled)
-        );
-    </script>
+    <!-- Supabase library (local, vendored) + admin logic with a real session guard -->
+    <script src="js/vendor/supabase.min.js"></script>
+    <script type="module" src="js/admin.js"></script>
     <!-- Footer — Copyright -->
     <footer style="
         text-align: center;
@@ -538,8 +366,8 @@
         font-weight: 600;
         line-height: 1.8;
     ">
-        <div>جميع الحقوق محفوظة &copy; 2026 لصالح شركة <span style="color:var(--royal-gold);font-weight:800;">MSM-FINTECH</span></div>
-        <div style="margin-top:2px; font-size:0.78rem; opacity:0.7;">تطوير وبناء المبرمج: <span style="color:var(--text-main);font-weight:700;">MOHAMED SAYED MUBARAK</span></div>
+        <div>جميع الحقوق محفوظة &copy; 2026</div>
+        <div style="margin-top:2px; font-size:0.78rem; opacity:0.7;">developed by <span style="color:var(--text-main);font-weight:700;">Mohamed Sayed</span></div>
     </footer>
 </body>
 </html>

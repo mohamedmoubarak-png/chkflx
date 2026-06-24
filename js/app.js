@@ -65,10 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         if (isDark) {
             document.body.removeAttribute('data-theme');
-            themeColorMeta.setAttribute('content', '#F8FAFC');
+            themeColorMeta.setAttribute('content', '#F4F7FC');
+            try { localStorage.setItem('chequeflex-theme', 'light'); } catch (e) {}
         } else {
             document.body.setAttribute('data-theme', 'dark');
-            themeColorMeta.setAttribute('content', '#0F172A');
+            themeColorMeta.setAttribute('content', '#050E1F');
+            try { localStorage.setItem('chequeflex-theme', 'dark'); } catch (e) {}
         }
     });
 
@@ -152,6 +154,59 @@ document.addEventListener('DOMContentLoaded', () => {
             chequesModal.classList.remove('active');
         }
     });
+
+    // Print results button (replaces inline onclick for CSP compliance)
+    const printResultsBtn = document.getElementById('printResultsBtn');
+    if (printResultsBtn) printResultsBtn.addEventListener('click', () => window.print());
+
+    // Easter egg — tap the developer name 5 times in a row to open WhatsApp
+    const devName = document.getElementById('devName');
+    if (devName) {
+        let devTapCount = 0;
+        let devTapTimer = null;
+        devName.addEventListener('click', () => {
+            devTapCount++;
+            clearTimeout(devTapTimer);
+            devTapTimer = setTimeout(() => { devTapCount = 0; }, 1500);
+            if (devTapCount >= 5) {
+                devTapCount = 0;
+                clearTimeout(devTapTimer);
+                window.open('https://wa.me/201027262202', '_blank');
+            }
+        });
+    }
+
+    // Accordion result cards — click the head to expand/collapse
+    function wireAccordion(headId, cardId) {
+        const head = document.getElementById(headId);
+        const card = document.getElementById(cardId);
+        if (!head || !card) return;
+        head.addEventListener('click', () => {
+            const isOpen = card.classList.toggle('open');
+            head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    }
+    wireAccordion('clientAccordionHead', 'clientAccordion');
+    wireAccordion('guarAccordionHead', 'guarAccordion');
+
+    // Expandable "remaining cheques" cards — click to reveal cheques 2..N
+    function wireExpandableCard(cardId) {
+        const card = document.getElementById(cardId);
+        if (!card) return;
+        const toggle = () => {
+            const isOpen = card.classList.toggle('open');
+            card.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        };
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.cheque-sublist')) return; // ignore clicks inside the list
+            toggle();
+        });
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+    }
+    wireExpandableCard('clientRemainingCard');
+    wireExpandableCard('guarRemainingCard');
 
     // Calculate Button Click
     calcBtn.addEventListener('click', () => {
@@ -238,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         for (const key in firebaseProducts) {
             const p = firebaseProducts[key];
-            html += `<option value="${p.code}">الفائدة: ${(p.rate * 100).toFixed(2)}%</option>`;
+            html += `<option value="${escapeHtml(p.code)}">الفائدة: ${(p.rate * 100).toFixed(2)}%</option>`;
         }
         datalist.innerHTML = html;
 
@@ -260,8 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderResults(results, loanAmount, duration, hasGuarantor);
     }
 
-    // --- 6. Load Firebase products AFTER all listeners are set up ---
-    // Wait for the module loader to signal Firebase is ready
+    // --- 6. Load products AFTER all listeners are set up ---
+    // Wait for the module loader to signal the data module is ready
     function loadFirebaseProducts() {
         function onFirebaseReady() {
             if (!window.getProducts) return;
@@ -282,14 +337,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     populateProductDatalist();
                 })
                 .catch((error) => {
-                    console.error('Firebase products loading failed:', error);
+                    console.error('Products loading failed:', error);
                     // Use built-in fallback products so the app still works
                     firebaseProducts = { 'IS18': { code: 'IS18', rate: 0.05 } };
                     firebaseLoaded = true;
                     populateProductDatalist();
                     const warning = document.createElement('div');
                     warning.style.cssText = 'font-size:0.8rem;color:#f59e0b;padding:6px 0;';
-                    warning.textContent = '⚠️ Firebase غير متاح، تم استخدام البيانات الاحتياطية';
+                    warning.textContent = '⚠️ قاعدة البيانات غير متاحة، تم استخدام البيانات الاحتياطية';
                     productCodeInput.parentNode.appendChild(warning);
                 });
         }
@@ -297,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.getProducts) {
             onFirebaseReady();
         } else {
-            document.addEventListener('firebase-ready', onFirebaseReady, { once: true });
+            document.addEventListener('products-ready', onFirebaseReady, { once: true });
         }
     }
 

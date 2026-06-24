@@ -2,6 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://ohyxylqwpiraiwtezmuy.supabase.co wss://ohyxylqwpiraiwtezmuy.supabase.co https://*.google-analytics.com https://*.analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXRSER8TMQ"></script>
+    <script src="js/analytics.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#081628" id="themeColorMeta">
@@ -20,15 +25,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- External Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Vendored Libraries (local, pinned versions — no third-party runtime JS) -->
+    <script src="js/vendor/supabase.min.js"></script>
+    <script src="js/vendor/chart.umd.min.js"></script>
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-theme="dark">
+<body>
+
+    <!-- Boot: anti-clickjacking, theme init, splash & service worker -->
+    <script src="js/boot.js"></script>
 
     <!-- ============================================================
          SPLASH SCREEN
@@ -37,7 +44,8 @@
         <div class="splash-content">
             <!-- Logo -->
             <div class="splash-logo">
-                <svg width="110" height="110" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <span class="logo-ring"></span>
+                <svg width="104" height="104" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="512" height="512" rx="96" fill="#0D1F3C"/>
                     <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
                           stroke="url(#splC)" stroke-width="56" stroke-linecap="round" fill="none"/>
@@ -58,15 +66,13 @@
             <!-- Name -->
             <div class="splash-name" dir="ltr">Cheque<span>Flex</span></div>
             <div class="splash-sub">حاسبة الشيكات الذكية</div>
-            <!-- Loading dots -->
-            <div class="splash-dots">
-                <span></span><span></span><span></span>
-            </div>
+            <!-- Loading progress -->
+            <div class="splash-progress"><div class="splash-progress-bar"></div></div>
         </div>
         <!-- Copyright -->
         <div class="splash-footer">
-            جميع الحقوق محفوظة &copy; 2026 لصالح شركة <strong>MSM-FINTECH</strong><br>
-            تطوير المبرمج: MOHAMED SAYED MUBARAK
+            جميع الحقوق محفوظة &copy; 2026<br>
+            developed by <strong>Mohamed Sayed</strong>
         </div>
     </div>
 
@@ -77,11 +83,12 @@
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: #081628;
+            background: radial-gradient(circle at 50% 38%, #0E2A55 0%, #071A33 45%, #050E1F 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         #splashScreen.hidden {
@@ -89,70 +96,122 @@
             visibility: hidden;
             pointer-events: none;
         }
+        /* Animated background glows */
+        #splashScreen::before,
+        #splashScreen::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.55;
+            z-index: 0;
+        }
+        #splashScreen::before {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(59,111,245,0.55), transparent 70%);
+            top: 10%; inset-inline-start: 6%;
+            animation: splGlow1 7s ease-in-out infinite;
+        }
+        #splashScreen::after {
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, rgba(91,134,248,0.32), transparent 70%);
+            bottom: 6%; inset-inline-end: 4%;
+            animation: splGlow2 8s ease-in-out infinite;
+        }
+        @keyframes splGlow1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(28px,22px); } }
+        @keyframes splGlow2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-28px,-18px); } }
+
         .splash-content {
+            position: relative;
+            z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
-            animation: splFadeIn 0.6s ease forwards;
+            gap: 18px;
+            animation: splFadeIn 0.7s ease forwards;
         }
         @keyframes splFadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* Logo with rotating gradient ring */
         .splash-logo {
-            animation: splPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 28px rgba(74,127,232,0.45));
+            position: relative;
+            width: 132px; height: 132px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .splash-logo .logo-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 0deg, #3B6FF5 70deg, #5B86F8 150deg, transparent 260deg);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+                    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+            animation: splSpin 2.6s linear infinite;
+        }
+        @keyframes splSpin { to { transform: rotate(360deg); } }
+        .splash-logo svg {
+            animation: splPulse 2.6s ease-in-out infinite;
+            filter: drop-shadow(0 0 26px rgba(59,111,245,0.55));
         }
         @keyframes splPulse {
-            0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 20px rgba(74,127,232,0.4)); }
-            50%       { transform: scale(1.06); filter: drop-shadow(0 0 36px rgba(74,127,232,0.7)); }
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.05); }
         }
+
         .splash-name {
             font-family: 'Cairo', sans-serif;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: #E8EEF8;
             letter-spacing: -0.5px;
+            text-shadow: 0 0 24px rgba(59,111,245,0.25);
         }
-        .splash-name span { color: #2B62F0; }
+        .splash-name span { color: #5B86F8; }
         .splash-sub {
             font-family: 'Cairo', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             font-weight: 600;
-            color: #7A9AC0;
+            color: #7FA0CC;
+            margin-top: -8px;
         }
-        /* Loading dots */
-        .splash-dots {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
+
+        /* Loading progress bar */
+        .splash-progress {
+            width: 184px; height: 4px;
+            background: rgba(255,255,255,0.10);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
         }
-        .splash-dots span {
-            width: 8px; height: 8px;
-            background: #2B62F0;
-            border-radius: 50%;
-            animation: splDot 1.2s ease-in-out infinite;
+        .splash-progress-bar {
+            height: 100%; width: 0;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3B6FF5, #5B86F8);
+            box-shadow: 0 0 12px rgba(59,111,245,0.6);
+            animation: splLoad 2.4s ease forwards;
         }
-        .splash-dots span:nth-child(2) { animation-delay: 0.2s; background: #4A7FE8; }
-        .splash-dots span:nth-child(3) { animation-delay: 0.4s; background: #C5D0E4; }
-        @keyframes splDot {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40%            { transform: scale(1.3); opacity: 1; }
+        @keyframes splLoad {
+            0%   { width: 0; }
+            55%  { width: 70%; }
+            100% { width: 100%; }
         }
+
         /* Footer */
         .splash-footer {
             position: fixed;
             bottom: 20px;
             left: 0; right: 0;
+            z-index: 1;
             text-align: center;
             font-family: 'Cairo', sans-serif;
             font-size: 0.72rem;
             font-weight: 600;
-            color: #3A5878;
+            color: #5478A4;
             line-height: 1.7;
         }
-        .splash-footer strong { color: #4A6A90; }
+        .splash-footer strong { color: #7FA0CC; }
     </style>
 
     <!-- Print Header (Hidden on Screen) -->
@@ -259,7 +318,7 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                             </span>
                         </label>
-                        <input type="number" id="duration" class="form-control" placeholder="36" min="6" step="6" required>
+                        <input type="number" id="duration" class="form-control" placeholder="36" value="36" min="6" step="6" required>
                         <div class="error-msg" id="error-duration" data-i18n="errorDuration">المدة غير صحيحة، أدنى مدة 6 شهور</div>
                     </div>
 
@@ -298,7 +357,7 @@
                             <span data-i18n="resultsTitle">لوحة المخرجات</span>
                         </div>
                         <div class="results-actions">
-                            <button class="btn btn-primary btn-sm" onclick="window.print()">
+                            <button type="button" class="btn btn-primary btn-sm" id="printResultsBtn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                                 <span data-i18n="printBtn">طباعة</span>
                             </button>
@@ -306,55 +365,113 @@
                     </div>
                 </div>
 
-                <div class="section-title" data-i18n="clientDebtsTitle">بيانات مديونية العميل الأساسية</div>
-                <div class="stats-grid">
+                <!-- Client Cheques — Accordion Card -->
+                <div class="accordion-card" id="clientAccordion">
+                    <button type="button" class="accordion-head" id="clientAccordionHead" aria-expanded="false" aria-controls="clientAccordionBody">
+                        <div class="acc-head-main">
+                            <div class="acc-title">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                                <span data-i18n="clientDebtsTitle">شيكات العميل</span>
+                            </div>
+                            <div class="acc-value" id="clientHeadValue">0.00</div>
+                            <div class="acc-sub" data-i18n="firstCheckLabel">قيمة الشيك الأول</div>
+                        </div>
+                        <svg class="acc-chevron" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="accordion-body" id="clientAccordionBody">
+                      <div class="accordion-inner">
+                        <div class="stats-grid">
                     <div class="stat-card">
-                        <h4 data-i18n="clientChecksLabel">عدد الشيكات للعميل</h4>
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                        </div>
+                        <h4 data-i18n="clientChecksLabel"> شيكات العميل </h4>
                         <div class="value" id="valCount">0</div>
                         <div class="desc" data-i18n="clientChecksDesc">دورية نصف سنوية (كل 6 شهور)</div>
                     </div>
                     <div class="stat-card gold">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15 9.5a3.5 3.5 0 0 0-3-1.5c-1.5 0-3 .8-3 2s1.5 2 3 2 3 .8 3 2-1.5 2-3 2a3.5 3.5 0 0 1-3-1.5"></path><line x1="12" y1="6" x2="12" y2="8"></line><line x1="12" y1="16" x2="12" y2="18"></line></svg>
+                        </div>
                         <h4 data-i18n="firstCheckLabel">قيمة الشيك الأول</h4>
                         <div class="value" id="valFirstCheck">0.00</div>
                         <div class="desc" id="valFirstCheckDesc">يتضمن فائدة سماح + 5 أقساط</div>
                     </div>
-                    <div class="stat-card gold">
+                    <div class="stat-card gold expandable" id="clientRemainingCard" role="button" tabindex="0" aria-expanded="false">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                        </div>
+                        <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         <h4 data-i18n="remChecksLabel">قيمة باقي الشيكات</h4>
                         <div class="value" id="valRemChecks">0.00</div>
                         <div class="desc" data-i18n="remChecksDesc">قيمة ثابتة لـ 6 أشهر</div>
+                        <div class="cheque-sublist" id="clientRemainingList"></div>
+                    </div>
+                        </div>
+                      </div>
                     </div>
                 </div>
-                
-                <button type="button" class="btn btn-outline no-print" id="showClientChequesBtn" style="width: 100%; margin-bottom: 32px;">
-                    <span data-i18n="showAllCheques">عرض مبالغ الشيكات</span>
-                </button>
-                
                 <div id="printClientChequesContainer" class="print-only"></div>
 
-
+                <!-- Guarantor Cheques — Accordion Card -->
                 <div id="guarantorPanel" style="display: none;">
-                    <div class="section-title" data-i18n="guarChecksTitle">شيكات الضامن التضامني</div>
-                    <div class="stats-grid">
+                    <div class="accordion-card emerald" id="guarAccordion">
+                        <button type="button" class="accordion-head" id="guarAccordionHead" aria-expanded="false" aria-controls="guarAccordionBody">
+                            <div class="acc-head-main">
+                                <div class="acc-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    <span data-i18n="guarChecksTitle">شيكات الضامن</span>
+                                </div>
+                                <div class="acc-value" id="guarHeadValue">0.00</div>
+                                <div class="acc-sub" data-i18n="guarFirstLabel">قيمة الشيك الأول (سنوي)</div>
+                            </div>
+                            <svg class="acc-chevron" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="accordion-body" id="guarAccordionBody">
+                          <div class="accordion-inner">
+                            <div class="stats-grid">
                         <div class="stat-card emerald">
-                            <h4 data-i18n="guarCountLabel">عدد الشيكات</h4>
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <h4 data-i18n="guarCountLabel">شيكات الضامن</h4>
                             <div class="value" id="valGuarCount">0</div>
                             <div class="desc" data-i18n="guarCountDesc">سنوية الإستحقاق</div>
                         </div>
                         <div class="stat-card emerald">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"></path></svg>
+                            </div>
                             <h4 data-i18n="guarFirstLabel">قيمة الشيك الأول (سنوي)</h4>
                             <div class="value" id="valGuarFirst">0.00</div>
                             <div class="desc" data-i18n="guarFirstDesc">القسط الفعلي + 11 قسط</div>
                         </div>
-                        <div class="stat-card emerald">
+                        <div class="stat-card emerald expandable" id="guarRemainingCard" role="button" tabindex="0" aria-expanded="false">
+                            <div class="stat-icon" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            </div>
+                            <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             <h4 data-i18n="guarRemLabel">قيمة باقي الشيكات</h4>
                             <div class="value" id="valGuarRem">0.00</div>
                             <div class="desc" data-i18n="guarRemDesc">لكل شيك (12 شهر كامل)</div>
+                            <div class="cheque-sublist" id="guarRemainingList"></div>
+                        </div>
+                            </div>
+                          </div>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline no-print" id="showGuarChequesBtn" style="width: 100%; margin-bottom: 32px;">
-                        <span data-i18n="showGuarCheques">عرض مبالغ شيكات الضامن</span>
-                    </button>
                     <div id="printGuarantorChequesContainer" class="print-only"></div>
+                </div>
+
+                <!-- Payment Distribution Chart (below the cards) -->
+                <div class="chart-card no-print" id="chartCard">
+                    <div class="chart-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        <span data-i18n="chartTitle">توزيع قيم الشيكات على تواريخ الاستحقاق</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="chequesChart"></canvas>
+                    </div>
                 </div>
 
             </section>
@@ -381,16 +498,8 @@
     <script src="js/i18n.js"></script>
     <script src="js/calculator.js"></script>
     <script src="js/ui.js"></script>
-    <!-- Firebase module loader: imports Firebase and exposes getProducts globally -->
-    <script type="module">
-        import { getProducts, saveProduct, listenToProducts, DEFAULT_PRODUCTS } from './js/products.js';
-        window.getProducts = getProducts;
-        window.saveProduct = saveProduct;
-        window.listenToProducts = listenToProducts;
-        window.DEFAULT_PRODUCTS = DEFAULT_PRODUCTS;
-        // Signal that Firebase module is ready
-        document.dispatchEvent(new Event('firebase-ready'));
-    </script>
+    <!-- Data module loader: imports Supabase products module and exposes getProducts globally -->
+    <script type="module" src="js/data-loader.js"></script>
     <script src="js/app.js"></script>
     <!-- ============================================================
          Footer — Copyright
@@ -407,81 +516,11 @@
         letter-spacing: 0.2px;
     ">
         <div>
-            جميع الحقوق محفوظة &copy; 2026 لصالح شركة <span style="color:var(--royal-gold);font-weight:800;white-space:nowrap;">MSM-FINTECH</span>
+            <span data-i18n="footerRights">جميع الحقوق محفوظة</span> &copy; 2026
         </div>
         <div style="margin-top:2px; font-size:0.78rem; opacity:0.75;">
-            <span data-i18n="footerCredit">تطوير وبناء المبرمج:</span> <span style="color:var(--text-main);font-weight:700;white-space:nowrap;">MOHAMED SAYED MUBARAK</span>
+            <span data-i18n="footerCredit">developed by</span> <span id="devName" style="color:var(--text-main);font-weight:700;white-space:nowrap;cursor:pointer;">Mohamed Sayed</span>
         </div>
     </footer>
-    <!-- ============================================================
-         PWA — Service Worker Registration + Auto Update + Splash
-    ============================================================ -->
-    <script>
-        // ── 1. Splash Screen Auto-Hide ──────────────────────────────
-        (function() {
-            const splash = document.getElementById('splashScreen');
-            if (!splash) return;
-
-            // Hide after 2.5 seconds
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    // Remove from DOM after transition completes
-                    setTimeout(() => splash.remove(), 550);
-                }, 2500);
-            });
-        })();
-
-        // ── 2. Service Worker Registration + Force Update ───────────
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    const registration = await navigator.serviceWorker.register('./sw.js', {
-                        scope: './'
-                    });
-
-                    console.log('[PWA] Service Worker registered. Scope:', registration.scope);
-
-                    // ⚡ FORCE UPDATE: Check for new SW version on every page load
-                    registration.update();
-
-                    // When a new SW is waiting — send SKIP_WAITING to activate it
-                    function onNewSW(sw) {
-                        sw.postMessage({ type: 'SKIP_WAITING' });
-                    }
-
-                    // If SW is already waiting when page loads
-                    if (registration.waiting) {
-                        onNewSW(registration.waiting);
-                    }
-
-                    // Listen for a new SW entering 'waiting' state
-                    registration.addEventListener('updatefound', () => {
-                        const newSW = registration.installing;
-                        if (!newSW) return;
-
-                        newSW.addEventListener('statechange', () => {
-                            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version is ready — activate it
-                                onNewSW(newSW);
-                            }
-                        });
-                    });
-
-                    // 🔄 Auto-reload when controller changes (new SW took control)
-                    let refreshing = false;
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (refreshing) return;
-                        refreshing = true;
-                        console.log('[PWA] New version detected — reloading for fresh content...');
-                        window.location.reload();
-                    });
-
-                } catch (error) {
-                    console.error('[PWA] Service Worker registration failed:', error);
-                }
-            });
-        }
-    </script>
 </body>
 </html>

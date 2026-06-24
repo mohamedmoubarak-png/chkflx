@@ -2,8 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://ohyxylqwpiraiwtezmuy.supabase.co wss://ohyxylqwpiraiwtezmuy.supabase.co https://*.google-analytics.com https://*.analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXRSER8TMQ"></script>
+    <script src="js/analytics.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول | ChequeFlex</title>
+    <!-- Anti-clickjacking + frame-busting -->
+    <script src="js/boot-lite.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -228,12 +235,12 @@
             <div class="gold-bar"></div>
         </div>
 
-        <div class="global-error" id="globalError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+        <div class="global-error" id="globalError">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
 
         <div class="input-group">
-            <label for="username">اسم المستخدم</label>
-            <input type="text" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username">
-            <div class="error-msg" id="error-username">يرجى إدخال اسم المستخدم</div>
+            <label for="email">البريد الإلكتروني</label>
+            <input type="email" id="email" placeholder="أدخل بريدك الإلكتروني" autocomplete="username" inputmode="email">
+            <div class="error-msg" id="error-email">يرجى إدخال البريد الإلكتروني</div>
         </div>
 
         <div class="input-group">
@@ -242,7 +249,7 @@
             <div class="error-msg" id="error-password">يرجى إدخال كلمة المرور</div>
         </div>
 
-        <button class="btn-login" id="loginBtn" onclick="handleLogin()">
+        <button type="button" class="btn-login" id="loginBtn">
             <div class="spinner" id="spinner"></div>
             <span id="loginBtnText">تسجيل الدخول</span>
         </button>
@@ -262,81 +269,12 @@
             line-height: 1.8;
             opacity: 0.8;
         ">
-            <div>جميع الحقوق محفوظة &copy; 2026 لصالح شركة <span style="color:var(--royal-gold);font-weight:800;">MSM-FINTECH</span></div>
-            <div style="font-size:0.72rem; opacity:0.75;">MOHAMED SAYED MUBARAK</div>
+            <div>جميع الحقوق محفوظة &copy; 2026</div>
+            <div style="font-size:0.72rem; opacity:0.75;">developed by <span style="color:var(--text-main);font-weight:700;">Mohamed Sayed</span></div>
         </div>
     </div>
 
-    <script>
-        // Redirect if already authenticated
-        if (sessionStorage.getItem('investo_auth') === 'true') {
-            window.location.href = 'admin.html';
-        }
-
-        // Credentials (in production, use a backend — never store passwords client-side)
-        const VALID_USERNAME = 'mohamed';
-        const VALID_PASSWORD = 'Mohamed@2016';
-
-        async function handleLogin() {
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const loginBtn      = document.getElementById('loginBtn');
-            const spinner       = document.getElementById('spinner');
-            const loginBtnText  = document.getElementById('loginBtnText');
-            const globalError   = document.getElementById('globalError');
-
-            // Reset error states
-            globalError.style.display = 'none';
-            usernameInput.classList.remove('invalid');
-            passwordInput.classList.remove('invalid');
-            document.getElementById('error-username').style.display = 'none';
-            document.getElementById('error-password').style.display = 'none';
-
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
-
-            // Validate inputs
-            let valid = true;
-            if (!username) {
-                usernameInput.classList.add('invalid');
-                document.getElementById('error-username').style.display = 'block';
-                valid = false;
-            }
-            if (!password) {
-                passwordInput.classList.add('invalid');
-                document.getElementById('error-password').style.display = 'block';
-                valid = false;
-            }
-            if (!valid) return;
-
-            // Show loading state
-            loginBtn.disabled = true;
-            spinner.style.display = 'block';
-            loginBtnText.textContent = 'جارٍ التحقق...';
-
-            // Small delay for UX, then check credentials
-            await new Promise(r => setTimeout(r, 400));
-
-            if (username.toLowerCase() === VALID_USERNAME && password === VALID_PASSWORD) {
-                // ✅ Success — set auth flag (same key checked in admin.html)
-                sessionStorage.setItem('investo_auth', 'true');
-                sessionStorage.setItem('investo_user', username);
-                window.location.href = 'admin.html';
-            } else {
-                // ❌ Failure
-                globalError.style.display = 'block';
-                usernameInput.classList.add('invalid');
-                passwordInput.classList.add('invalid');
-                passwordInput.value = '';
-                loginBtn.disabled = false;
-                spinner.style.display = 'none';
-                loginBtnText.textContent = 'تسجيل الدخول';
-            }
-        }
-
-        // Allow Enter key to submit
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter') handleLogin();
-        });
-    </script>
+    <!-- Supabase library (local, vendored) + login logic -->
+    <script src="js/vendor/supabase.min.js"></script>
+    <script type="module" src="js/login.js"></script>
 

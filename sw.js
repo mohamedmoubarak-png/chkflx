@@ -8,12 +8,12 @@
  * ============================================================
  *
  *  Strategy: NETWORK ONLY
- *  — لا يعمل بدون إنترنت (لضمان دقة بيانات Firebase)
+ *  — لا يعمل بدون إنترنت (لضمان دقة بيانات قاعدة البيانات)
  *  — عند توفر تحديث جديد يتم التطبيق الفوري على الفور
  * ============================================================
  */
 
-const SW_VERSION = 'chequeflex-sw-v1';
+const SW_VERSION = 'chequeflex-sw-v3';
 
 // ─── INSTALL ────────────────────────────────────────────────
 // نتجاوز مرحلة الانتظار فوراً لضمان تفعيل النسخة الجديدة
@@ -143,7 +143,7 @@ function buildOfflinePage() {
     </p>
     <button class="retry-btn" onclick="location.reload()">🔄 إعادة المحاولة</button>
     <div class="footer">
-        جميع الحقوق محفوظة © 2026 لصالح شركة MSM-FINTECH &nbsp;|&nbsp; MOHAMED SAYED MUBARAK
+        جميع الحقوق محفوظة © 2026 &nbsp;|&nbsp; developed by Mohamed Sayed
     </div>
 </body>
 </html>`;
