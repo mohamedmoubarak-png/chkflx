@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#081628" id="themeColorMeta">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ChequeFlex">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="chkflx.png">
+    <meta name="description" content="أداة حساب مديونية وتسوية شيكات المشروعات الصغيرة">
+    
+    <title data-i18n="pageTitle">ChequeFlex | حاسبة الشيكات الذكية</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="dark">
+
+    <!-- ============================================================
+         SPLASH SCREEN
+    ============================================================ -->
+    <div id="splashScreen" role="status" aria-label="جارٍ تحميل ChequeFlex">
+        <div class="splash-content">
+            <!-- Logo -->
+            <div class="splash-logo">
+                <svg width="110" height="110" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="512" height="512" rx="96" fill="#0D1F3C"/>
+                    <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
+                          stroke="url(#splC)" stroke-width="56" stroke-linecap="round" fill="none"/>
+                    <path d="M120 240L200 320L340 160"
+                          stroke="url(#splK)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <defs>
+                        <linearGradient id="splC" x1="16" y1="60" x2="380" y2="420" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#4A7FE8"/>
+                            <stop offset="100%" stop-color="#1D50D8"/>
+                        </linearGradient>
+                        <linearGradient id="splK" x1="120" y1="160" x2="340" y2="320" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#C5D0E4"/>
+                            <stop offset="100%" stop-color="#E8EEF8"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <!-- Name -->
+            <div class="splash-name" dir="ltr">Cheque<span>Flex</span></div>
+            <div class="splash-sub">حاسبة الشيكات الذكية</div>
+            <!-- Loading dots -->
+            <div class="splash-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <!-- Copyright -->
+        <div class="splash-footer">
+            جميع الحقوق محفوظة &copy; 2026 لصالح شركة <strong>MSM-FINTECH</strong><br>
+            تطوير المبرمج: MOHAMED SAYED MUBARAK
+        </div>
+    </div>
+
+    <!-- Splash Screen Styles (inline to render before CSS loads) -->
+    <style>
+        /* ── Splash Screen ─────────────────────────────────────── */
+        #splashScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #081628;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #splashScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .splash-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: splFadeIn 0.6s ease forwards;
+        }
+        @keyframes splFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .splash-logo {
+            animation: splPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 28px rgba(74,127,232,0.45));
+        }
+        @keyframes splPulse {
+            0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 20px rgba(74,127,232,0.4)); }
+            50%       { transform: scale(1.06); filter: drop-shadow(0 0 36px rgba(74,127,232,0.7)); }
+        }
+        .splash-name {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #E8EEF8;
+            letter-spacing: -0.5px;
+        }
+        .splash-name span { color: #2B62F0; }
+        .splash-sub {
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #7A9AC0;
+        }
+        /* Loading dots */
+        .splash-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .splash-dots span {
+            width: 8px; height: 8px;
+            background: #2B62F0;
+            border-radius: 50%;
+            animation: splDot 1.2s ease-in-out infinite;
+        }
+        .splash-dots span:nth-child(2) { animation-delay: 0.2s; background: #4A7FE8; }
+        .splash-dots span:nth-child(3) { animation-delay: 0.4s; background: #C5D0E4; }
+        @keyframes splDot {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40%            { transform: scale(1.3); opacity: 1; }
+        }
+        /* Footer */
+        .splash-footer {
+            position: fixed;
+            bottom: 20px;
+            left: 0; right: 0;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #3A5878;
+            line-height: 1.7;
+        }
+        .splash-footer strong { color: #4A6A90; }
+    </style>
+
+    <!-- Print Header (Hidden on Screen) -->
+    <div class="print-only" id="printHeader">
+        <div class="print-header">
+            <div class="print-logo">Cheque<span>Flex</span></div>
+            <div data-i18n="printTitle">عرض مديونية وتسوية شيكات المشروعات الصغيرة</div>
+            <div class="client-print-meta">
+                <span id="printClientName" data-i18n="printClient">العميل: ----------------</span>
+                <span id="printDate" data-i18n="printDateLabel">التاريخ: </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Navbar -->
+        <header class="app-bar no-print">
+            <div class="brand" dir="ltr">
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M30 10C26.8 6.5 22.2 4 17 4C8.7 4 2 10.7 2 19C2 27.3 8.7 34 17 34C22.2 34 26.8 31.5 30 28" stroke="url(#cfC_idx)" stroke-width="4.2" stroke-linecap="round"/>
+                    <path d="M10 19L15.5 24.5L25 13" stroke="url(#cfK_idx)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="cfC_idx" x1="2" y1="4" x2="30" y2="34" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#4A7FE8"/>
+                            <stop offset="100%" stop-color="#1D50D8"/>
+                        </linearGradient>
+                        <linearGradient id="cfK_idx" x1="10" y1="13" x2="25" y2="24.5" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#C5D0E4"/>
+                            <stop offset="100%" stop-color="#E8EEF8"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Cheque<span>Flex</span>
+                <small>حاسبة الشيكات الذكية</small>
+            </div>
+            <div class="actions-right">
+                <button class="btn-icon" id="langToggle" aria-label="Toggle Language" title="تغيير اللغة">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <span id="currentLangLabel">EN</span>
+                </button>
+                <button class="btn-icon" id="themeToggle" aria-label="Toggle Theme" title="تبديل المظهر">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <a href="login.html" class="btn-icon" title="لوحة الإدارة" aria-label="Admin Panel" style="text-decoration:none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 1 0 14.14M14.12 2.06A10 10 0 0 1 22 12M2 12a10 10 0 0 1 14.12-9.94M4.93 19.07A10 10 0 0 1 12 2"></path><path d="M12 22a10 10 0 0 1-9.94-8.12"></path></svg>
+                </a>
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <!-- Left Column: Inputs Form -->
+            <aside class="card no-print fade-in">
+                <div class="card-header">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span data-i18n="formTitle">بيانات العملية</span>
+                    
+                    <button class="btn-icon btn-sm" id="resetBtn" aria-label="Reset Form" title="إعادة ضبط" style="margin-right: auto; margin-left: 0;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                    </button>
+                </div>
+
+                <form id="calculatorForm" novalidate>
+                    <!-- Client Name -->
+                    <div class="input-group">
+                        <label for="clientName">
+                            <span data-i18n="clientNameLabel">اسم العميل (اختياري)</span>
+                            <span class="tooltip-icon" aria-label="يظهر اسم العميل في المطبوعات فقط" title="يظهر اسم العميل في المطبوعات فقط">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            </span>
+                        </label>
+                        <input type="text" id="clientName" class="form-control" placeholder="أدخل اسم العميل" data-i18n-placeholder="clientNamePlaceholder">
+                    </div>
+
+                    <!-- Loan Amount -->
+                    <div class="input-group">
+                        <label for="loanAmount">
+                            <span data-i18n="loanAmountLabel">مبلغ القرض (ج.م)</span>
+                            <span class="tooltip-icon" aria-label="أدخل إجمالي مبلغ التمويل المطلوب" title="أدخل إجمالي مبلغ التمويل المطلوب">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            </span>
+                        </label>
+                        <input type="number" id="loanAmount" class="form-control" placeholder="100,000" min="1000" required>
+                        <div class="error-msg" id="error-loanAmount" data-i18n="errorLoanAmount">يرجى إدخال مبلغ صحيح أكبر من 1000</div>
+                    </div>
+
+                    <!-- Product Code -->
+                    <div class="input-group">
+                        <label for="productCode">
+                            <span data-i18n="productCodeLabel">المنتج المصرفي</span>
+                        </label>
+                        <input type="text" id="productCode" class="form-control" list="productCodesList" placeholder="أدخل كود المنتج (مثال: IS18)" required autocomplete="off">
+                        <datalist id="productCodesList">
+                            <!-- Populated dynamically -->
+                        </datalist>
+                        <div class="error-msg" id="error-productCode">كود المنتج غير موجود في قاعدة البيانات</div>
+                    </div>
+
+
+                    <!-- Duration -->
+                    <div class="input-group">
+                        <label for="duration">
+                            <span data-i18n="durationLabel">مدة القرض (بالشهور)</span>
+                            <span class="tooltip-icon" aria-label="المدة الإجمالية للتمويل بالشهور، يجب أن تكون من مضاعفات الـ 6" title="المدة الإجمالية للتمويل بالشهور، يجب أن تكون من مضاعفات الـ 6">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            </span>
+                        </label>
+                        <input type="number" id="duration" class="form-control" placeholder="36" min="6" step="6" required>
+                        <div class="error-msg" id="error-duration" data-i18n="errorDuration">المدة غير صحيحة، أدنى مدة 6 شهور</div>
+                    </div>
+
+                    <!-- Disburse Date -->
+                    <div class="input-group">
+                        <label for="disburseDate">
+                            <span data-i18n="disburseDateLabel">تاريخ المنح</span>
+                        </label>
+                        <input type="date" id="disburseDate" class="form-control" required>
+                        <div class="error-msg" id="error-disburseDate" data-i18n="errorDate">يرجى إختيار تاريخ صحيح</div>
+                    </div>
+
+                    <!-- Guarantor Toggle -->
+                    <div class="toggle-row" id="guarantorToggle" tabindex="0" aria-checked="false" role="switch">
+                        <span data-i18n="guarantorLabel">هل يوجد ضامن؟</span>
+                        <div class="ios-toggle"></div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button type="button" class="btn btn-primary" id="calcBtn" style="width: 100%; margin-bottom: 16px; font-size: 1.1rem; padding: 14px;">
+                        <span data-i18n="calcBtn">احسب الآن</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </button>
+
+                    <div id="formGlobalError" class="global-error" style="display: none;" data-i18n="globalError">يرجى تصحيح الأخطاء في الحقول أعلاه.</div>
+                </form>
+            </aside>
+
+            <!-- Right Column: Results & Table -->
+            <section class="results-wrapper fade-in" id="resultsSection">
+                
+                <div class="card card-header-box no-print" style="margin-bottom: 24px; padding: 16px 24px;">
+                    <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span data-i18n="resultsTitle">لوحة المخرجات</span>
+                        </div>
+                        <div class="results-actions">
+                            <button class="btn btn-primary btn-sm" onclick="window.print()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                                <span data-i18n="printBtn">طباعة</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" data-i18n="clientDebtsTitle">بيانات مديونية العميل الأساسية</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4 data-i18n="clientChecksLabel">عدد الشيكات للعميل</h4>
+                        <div class="value" id="valCount">0</div>
+                        <div class="desc" data-i18n="clientChecksDesc">دورية نصف سنوية (كل 6 شهور)</div>
+                    </div>
+                    <div class="stat-card gold">
+                        <h4 data-i18n="firstCheckLabel">قيمة الشيك الأول</h4>
+                        <div class="value" id="valFirstCheck">0.00</div>
+                        <div class="desc" id="valFirstCheckDesc">يتضمن فائدة سماح + 5 أقساط</div>
+                    </div>
+                    <div class="stat-card gold">
+                        <h4 data-i18n="remChecksLabel">قيمة باقي الشيكات</h4>
+                        <div class="value" id="valRemChecks">0.00</div>
+                        <div class="desc" data-i18n="remChecksDesc">قيمة ثابتة لـ 6 أشهر</div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-outline no-print" id="showClientChequesBtn" style="width: 100%; margin-bottom: 32px;">
+                    <span data-i18n="showAllCheques">عرض مبالغ الشيكات</span>
+                </button>
+                
+                <div id="printClientChequesContainer" class="print-only"></div>
+
+
+                <div id="guarantorPanel" style="display: none;">
+                    <div class="section-title" data-i18n="guarChecksTitle">شيكات الضامن التضامني</div>
+                    <div class="stats-grid">
+                        <div class="stat-card emerald">
+                            <h4 data-i18n="guarCountLabel">عدد الشيكات</h4>
+                            <div class="value" id="valGuarCount">0</div>
+                            <div class="desc" data-i18n="guarCountDesc">سنوية الإستحقاق</div>
+                        </div>
+                        <div class="stat-card emerald">
+                            <h4 data-i18n="guarFirstLabel">قيمة الشيك الأول (سنوي)</h4>
+                            <div class="value" id="valGuarFirst">0.00</div>
+                            <div class="desc" data-i18n="guarFirstDesc">القسط الفعلي + 11 قسط</div>
+                        </div>
+                        <div class="stat-card emerald">
+                            <h4 data-i18n="guarRemLabel">قيمة باقي الشيكات</h4>
+                            <div class="value" id="valGuarRem">0.00</div>
+                            <div class="desc" data-i18n="guarRemDesc">لكل شيك (12 شهر كامل)</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline no-print" id="showGuarChequesBtn" style="width: 100%; margin-bottom: 32px;">
+                        <span data-i18n="showGuarCheques">عرض مبالغ شيكات الضامن</span>
+                    </button>
+                    <div id="printGuarantorChequesContainer" class="print-only"></div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Cheques List -->
+    <div class="modal-backdrop" id="chequesModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">قائمة الشيكات</h3>
+                <button class="btn-icon btn-sm" id="closeModalBtn" aria-label="Close Modal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="cheques-list" id="chequesListContainer">
+                    <!-- Cheque items injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/ui.js"></script>
+    <!-- Firebase module loader: imports Firebase and exposes getProducts globally -->
+    <script type="module">
+        import { getProducts, saveProduct, listenToProducts, DEFAULT_PRODUCTS } from './js/products.js';
+        window.getProducts = getProducts;
+        window.saveProduct = saveProduct;
+        window.listenToProducts = listenToProducts;
+        window.DEFAULT_PRODUCTS = DEFAULT_PRODUCTS;
+        // Signal that Firebase module is ready
+        document.dispatchEvent(new Event('firebase-ready'));
+    </script>
+    <script src="js/app.js"></script>
+    <!-- ============================================================
+         Footer — Copyright
+    ============================================================ -->
+    <footer id="appFooter" class="app-footer no-print" style="
+        text-align: center;
+        padding: 20px 24px;
+        margin-top: 8px;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 600;
+        line-height: 2;
+        letter-spacing: 0.2px;
+    ">
+        <div>
+            جميع الحقوق محفوظة &copy; 2026 لصالح شركة <span style="color:var(--royal-gold);font-weight:800;white-space:nowrap;">MSM-FINTECH</span>
+        </div>
+        <div style="margin-top:2px; font-size:0.78rem; opacity:0.75;">
+            <span data-i18n="footerCredit">تطوير وبناء المبرمج:</span> <span style="color:var(--text-main);font-weight:700;white-space:nowrap;">MOHAMED SAYED MUBARAK</span>
+        </div>
+    </footer>
+    <!-- ============================================================
+         PWA — Service Worker Registration + Auto Update + Splash
+    ============================================================ -->
+    <script>
+        // ── 1. Splash Screen Auto-Hide ──────────────────────────────
+        (function() {
+            const splash = document.getElementById('splashScreen');
+            if (!splash) return;
+
+            // Hide after 2.5 seconds
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    // Remove from DOM after transition completes
+                    setTimeout(() => splash.remove(), 550);
+                }, 2500);
+            });
+        })();
+
+        // ── 2. Service Worker Registration + Force Update ───────────
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('./sw.js', {
+                        scope: './'
+                    });
+
+                    console.log('[PWA] Service Worker registered. Scope:', registration.scope);
+
+                    // ⚡ FORCE UPDATE: Check for new SW version on every page load
+                    registration.update();
+
+                    // When a new SW is waiting — send SKIP_WAITING to activate it
+                    function onNewSW(sw) {
+                        sw.postMessage({ type: 'SKIP_WAITING' });
+                    }
+
+                    // If SW is already waiting when page loads
+                    if (registration.waiting) {
+                        onNewSW(registration.waiting);
+                    }
+
+                    // Listen for a new SW entering 'waiting' state
+                    registration.addEventListener('updatefound', () => {
+                        const newSW = registration.installing;
+                        if (!newSW) return;
+
+                        newSW.addEventListener('statechange', () => {
+                            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version is ready — activate it
+                                onNewSW(newSW);
+                            }
+                        });
+                    });
+
+                    // 🔄 Auto-reload when controller changes (new SW took control)
+                    let refreshing = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        if (refreshing) return;
+                        refreshing = true;
+                        console.log('[PWA] New version detected — reloading for fresh content...');
+                        window.location.reload();
+                    });
+
+                } catch (error) {
+                    console.error('[PWA] Service Worker registration failed:', error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

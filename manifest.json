@@ -1,0 +1,45 @@
+{
+  "name": "ChequeFlex - حاسبة الشيكات الذكية",
+  "short_name": "ChequeFlex",
+  "description": "حاسبة شيكات المشروعات الذكية | MSM-FINTECH © 2026",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#081628",
+  "theme_color": "#081628",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "chkflx.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "chkflx.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "حاسبة الشيكات",
+      "short_name": "احسب",
+      "description": "فتح حاسبة الشيكات مباشرة",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "chkflx.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

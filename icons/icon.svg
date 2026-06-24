@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#081628"/>
+  <!-- C arc -->
+  <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
+        stroke="url(#cGrad)" stroke-width="56" stroke-linecap="round" fill="none"/>
+  <!-- Checkmark -->
+  <path d="M120 240L200 320L340 160"
+        stroke="url(#kGrad)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <defs>
+    <linearGradient id="cGrad" x1="16" y1="60" x2="380" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4A7FE8"/>
+      <stop offset="100%" stop-color="#1D50D8"/>
+    </linearGradient>
+    <linearGradient id="kGrad" x1="120" y1="160" x2="340" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C5D0E4"/>
+      <stop offset="100%" stop-color="#E8EEF8"/>
+    </linearGradient>
+  </defs>
+</svg>
