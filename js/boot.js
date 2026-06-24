@@ -22,6 +22,18 @@
     } catch (e) {}
 })();
 
+// 2.5) Capture the PWA install prompt as early as possible so a custom
+//      "install" button can trigger it on demand (Chrome no longer auto-prompts).
+window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__deferredInstallPrompt = e;
+    document.dispatchEvent(new Event('pwa-installable'));
+});
+window.addEventListener('appinstalled', function () {
+    window.__deferredInstallPrompt = null;
+    document.dispatchEvent(new Event('pwa-installed'));
+});
+
 // 3) Splash auto-hide + Service Worker registration (after full load)
 window.addEventListener('load', function () {
     var splash = document.getElementById('splashScreen');

@@ -159,6 +159,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const printResultsBtn = document.getElementById('printResultsBtn');
     if (printResultsBtn) printResultsBtn.addEventListener('click', () => window.print());
 
+    // Lightweight toast for share/copy feedback
+    function showMiniToast(msg) {
+        let t = document.getElementById('miniToast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'miniToast';
+            t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);' +
+                'background:var(--royal-gold);color:#fff;padding:10px 20px;border-radius:10px;' +
+                'font-weight:700;font-size:0.9rem;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.25);' +
+                'opacity:0;transition:opacity .25s;';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        requestAnimationFrame(() => { t.style.opacity = '1'; });
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+    }
+
+    // Share app button — Web Share API with clipboard fallback
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async () => {
+            const url = location.origin + location.pathname.replace(/index\.html$/, '');
+            const shareData = {
+                title: 'ChequeFlex',
+                text: getCurrentLang() === 'ar' ? 'حاسبة الشيكات الذكية — ChequeFlex' : 'ChequeFlex — Smart Cheque Calculator',
+                url: url
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(url);
+                    showMiniToast(getCurrentLang() === 'ar' ? 'تم نسخ رابط التطبيق ✓' : 'App link copied ✓');
+                } else {
+                    window.prompt('انسخ الرابط:', url);
+                }
+            } catch (e) { /* user cancelled the share sheet */ }
+        });
+    }
+
+    // Install app button — shown only when the browser offers installation
+    const installBtn = document.getElementById('installBtn');
+    function updateInstallBtn() {
+        if (installBtn) installBtn.style.display = window.__deferredInstallPrompt ? '' : 'none';
+    }
+    if (installBtn) {
+        updateInstallBtn();
+        document.addEventListener('pwa-installable', updateInstallBtn);
+        document.addEventListener('pwa-installed', () => {
+            updateInstallBtn();
+            showMiniToast(getCurrentLang() === 'ar' ? 'تم تثبيت التطبيق ✓' : 'App installed ✓');
+        });
+        installBtn.addEventListener('click', async () => {
+            const promptEvent = window.__deferredInstallPrompt;
+            if (!promptEvent) return;
+            promptEvent.prompt();
+            try { await promptEvent.userChoice; } catch (e) {}
+            window.__deferredInstallPrompt = null;
+            updateInstallBtn();
+        });
+    }
+
     // Easter egg — tap the developer name 5 times in a row to open WhatsApp
     const devName = document.getElementById('devName');
     if (devName) {
