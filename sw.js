@@ -14,7 +14,7 @@
  * ============================================================
  */
 
-const SW_VERSION = 'chequeflex-sw-v9';
+const SW_VERSION = 'chequeflex-sw-v10';
 const CACHE_NAME = SW_VERSION;
 
 // ملفات التطبيق الأساسية — تُخزَّن لتشغيل الحاسبة بدون إنترنت
@@ -34,8 +34,7 @@ const APP_SHELL = [
     './js/ui.js',
     './js/products.js',
     './js/data-loader.js',
-    './js/app.js',
-    './js/vendor/chart.umd.min.js'
+    './js/app.js'
 ];
 
 // ─── INSTALL ────────────────────────────────────────────────

@@ -1,13 +1,14 @@
-
-
 /**
  * ============================================================
  *  ChequeFlex — حاسبة الشيكات الذكية
- *  ui.js — UI Renderer: Results, Modals & Print Builder
+ *  ui.js — UI Renderer: Results, Copy & Print Builder
  * ============================================================
  *  © 2026 MSM-FINTECH. جميع الحقوق محفوظة.
  *  تطوير وبناء المبرمج: MOHAMED SAYED MUBARAK
  *  يُحظر نسخ هذا الكود أو إعادة توزيعه دون إذن كتابي مسبق.
+ * ============================================================
+ *  Display only — every number shown here comes straight from
+ *  generateSchedule() in calculator.js; nothing is recalculated.
  * ============================================================
  */
 
@@ -18,138 +19,129 @@ function escapeHtml(str) {
     });
 }
 
-function renderResults(results, loanAmount, duration, hasGuarantor) {
-    const { actualFirstInstallment, clientCheques, guarantorCheques } = results;
+/* Dates like "5 يونيو 2027" — Latin digits so they match the amounts. */
+function formatChequeDate(dateStr, lang) {
+    const locale = lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US';
+    return new Date(dateStr).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+}
 
-    // Client Stats
-    const clientCount = clientCheques.length;
-    const clientFirstCheck = clientCheques.length > 0 ? clientCheques[0].amount : 0;
-    const clientRemCheck = clientCheques.length > 1 ? clientCheques[1].amount : clientFirstCheck;
+/* "3 شهور" / "12 شهر" / "6 months" — Arabic counts 3–10 take the plural. */
+function monthsText(n) {
+    if (getCurrentLang() === 'ar') return n + ' ' + (n >= 3 && n <= 10 ? 'شهور' : 'شهر');
+    return n + ' ' + (n === 1 ? 'month' : 'months');
+}
 
-    setValue('valCount', clientCount);
-    setValue('valFirstCheck', formatCurrency(clientFirstCheck));
-    setValue('valRemChecks', formatCurrency(clientRemCheck));
+function sumAmounts(cheques) {
+    return cheques.reduce((s, c) => s + c.amount, 0);
+}
 
-    // Client accordion head shows the headline number (first client cheque)
-    setValue('clientHeadValue', formatCurrency(clientFirstCheck));
+const COPY_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
 
-    // Reset both accordion cards to collapsed on each new calculation
-    collapseAccordion('clientAccordion', 'clientAccordionHead');
-    collapseAccordion('guarAccordion', 'guarAccordionHead');
+/**
+ * Render the results.
+ * meta: { code, rate, clientName } — used for the summary band and printout.
+ */
+function renderResults(results, loanAmount, duration, hasGuarantor, meta) {
+    window._lastRender = [results, loanAmount, duration, hasGuarantor, meta];
+    meta = meta || {};
+    const lang = getCurrentLang();
+    const { clientCheques, guarantorCheques, regularEMI } = results;
 
-    // Collapse the expandable "remaining cheques" cards and (re)build their lists
-    closeExpandable('clientRemainingCard');
-    closeExpandable('guarRemainingCard');
-    buildRemainingList(clientCheques, 'clientRemainingList', 'client');
-
-    // Store cheques data for modal
+    // Store cheques data (also used by the cheques modal and copy-all)
     window.currentClientCheques = clientCheques;
-    window.currentGuarantorCheques = guarantorCheques;
+    window.currentGuarantorCheques = hasGuarantor ? guarantorCheques : [];
 
-    // Guarantor
+    // --- Summary band ---
+    const nameEl = document.getElementById('summaryClient');
+    if (nameEl) nameEl.textContent = meta.clientName || getTranslation('clientDebtsTitle');
+    const dateEl = document.getElementById('summaryDate');
+    if (dateEl) dateEl.textContent = formatChequeDate(new Date().toDateString(), lang);
+    const chips = document.getElementById('summaryChips');
+    if (chips) {
+        const items = [
+            formatTranslation('loanChip', { v: formatCurrency(loanAmount) }),
+            meta.code ? formatTranslation('productChip', { code: meta.code, rate: (meta.rate * 100).toFixed(2) }) : '',
+            formatTranslation('durationChip', { d: duration }),
+            formatTranslation('monthlyChip', { v: formatCurrency(regularEMI) })
+        ].filter(Boolean);
+        chips.innerHTML = items.map(t => `<span class="summary-chip">${escapeHtml(t)}</span>`).join('');
+    }
+
+    // --- Cheque panels ---
+    renderChequePanel(clientCheques, 6, 'client', lang);
     const guarPanel = document.getElementById('guarantorPanel');
     if (hasGuarantor) {
-        guarPanel.style.display = 'block';
-        const guarCount = guarantorCheques.length;
-        const guarFirst = guarantorCheques.length > 0 ? guarantorCheques[0].amount : 0;
-        const guarRem = guarantorCheques.length > 1 ? guarantorCheques[1].amount : guarFirst;
-        
-        setValue('valGuarCount', guarCount);
-        setValue('valGuarFirst', formatCurrency(guarFirst));
-        setValue('valGuarRem', formatCurrency(guarRem));
-
-        // Guarantor accordion head shows the first guarantor cheque value
-        setValue('guarHeadValue', formatCurrency(guarFirst));
-        buildRemainingList(guarantorCheques, 'guarRemainingList', 'guar');
+        guarPanel.style.display = '';
+        renderChequePanel(guarantorCheques, 12, 'guar', lang);
     } else {
         guarPanel.style.display = 'none';
     }
-
-    // Note under "remaining cheques" when the last cheque covers fewer months
-    setPartialNote('clientPartialNote', clientCheques, 6);
-    setPartialNote('guarPartialNote', hasGuarantor ? guarantorCheques : [], 12);
+    document.querySelector('.cheques-grid').classList.toggle('single', !hasGuarantor);
 
     document.getElementById('resultsSection').style.display = 'block';
 
-    // Generate printable cheques list
+    // --- Printout ---
     buildPrintableCheques(clientCheques, guarantorCheques, hasGuarantor);
 
-    // Draw payment distribution chart (screen only)
-    renderChart(clientCheques, guarantorCheques, hasGuarantor);
-
     // Auto scroll to results on first calculation
-    if(!window.hasScrolled) {
+    if (!window.hasScrolled) {
         document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
         window.hasScrolled = true;
     }
 }
 
-/* Show "Last cheque (3 months): 9,758.90" when the final cheque is partial. */
-function setPartialNote(id, cheques, period) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const last = cheques.length > 1 ? cheques[cheques.length - 1] : null;
-    el.textContent = (last && last.months && last.months < period)
-        ? formatTranslation('lastChequeNote', { m: last.months, v: formatCurrency(last.amount) })
-        : '';
+/* Re-draw the last results (e.g. after switching language). */
+function rerenderResults() {
+    if (window._lastRender) renderResults.apply(null, window._lastRender);
 }
 
-/* Set a stat-card value and trigger a brief pulse animation */
-function setValue(id, text) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = text;
-    pulse(el);
-}
+/* One panel: a row per cheque (number, due date, months, amount, copy) + total. */
+function renderChequePanel(cheques, period, type, lang) {
+    const prefix = type === 'guar' ? 'guar' : 'client';
+    const rowsEl = document.getElementById(prefix + 'Rows');
+    const badgeEl = document.getElementById(prefix + 'Badge');
+    const totalEl = document.getElementById(prefix + 'Total');
 
-function pulse(el) {
-    el.classList.remove('value-pulse');
-    // force reflow so the animation can replay on every update
-    void el.offsetWidth;
-    el.classList.add('value-pulse');
-}
-
-/* Collapse an accordion result card (used to reset state on each calculation) */
-function collapseAccordion(cardId, headId) {
-    const card = document.getElementById(cardId);
-    const head = document.getElementById(headId);
-    if (card) card.classList.remove('open');
-    if (head) head.setAttribute('aria-expanded', 'false');
-}
-
-/* Collapse an expandable stat card (the "remaining cheques" card) */
-function closeExpandable(cardId) {
-    const card = document.getElementById(cardId);
-    if (card) {
-        card.classList.remove('open');
-        card.setAttribute('aria-expanded', 'false');
+    if (badgeEl) {
+        badgeEl.textContent = formatTranslation(type === 'guar' ? 'guarBadge' : 'clientBadge', { n: cheques.length });
     }
+
+    if (rowsEl) {
+        rowsEl.innerHTML = cheques.map((c, i) => {
+            const partial = c.months && c.months < period;
+            const amount = formatCurrency(c.amount);
+            const label = chequeLabel(c.number || (i + 1), type, lang);
+            return `<div class="cheque-row">
+                <span class="cheque-num">${c.number || (i + 1)}</span>
+                <div class="cheque-when">
+                    <div class="cheque-date">${formatChequeDate(c.date, lang)}</div>
+                    <div class="cheque-months${partial ? ' partial' : ''}">${c.months ? monthsText(c.months) : ''}${partial ? ' — ' + getTranslation('lastChequeTag') : ''}</div>
+                </div>
+                <span class="cheque-amt">${amount}</span>
+                <button type="button" class="cheque-copy" data-copy="${amount}" title="${escapeHtml(getTranslation('copyAmount'))}" aria-label="${escapeHtml(getTranslation('copyAmount') + ' — ' + label)}">${COPY_ICON}</button>
+            </div>`;
+        }).join('');
+    }
+
+    if (totalEl) totalEl.textContent = formatCurrency(sumAmounts(cheques));
 }
 
-/* Build the list of remaining cheques (from the 2nd cheque to the last)
-   shown when the "remaining cheques" card is expanded. type: 'client' | 'guar'. */
-function buildRemainingList(cheques, containerId, type) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+/* Plain-text list of all amounts (for WhatsApp / notes). */
+function buildCopyAllText() {
     const lang = getCurrentLang();
-    const dateOpts = { year: 'numeric', month: 'short', day: 'numeric' };
-    let html = '';
-    for (let i = 1; i < cheques.length; i++) {   // start from the 2nd cheque
-        const c = cheques[i];
-        const dateStr = new Date(c.date).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', dateOpts);
-        html += `<div class="sublist-row">
-            <div class="sublist-info">
-                <span class="sublist-num">${chequeLabel(c.number || (i + 1), type, lang)}</span>
-                <span class="sublist-date">${dateStr}</span>
-                ${c.months ? `<span class="sublist-months">${c.months} ${getTranslation('monthsUnit')}</span>` : ''}
-            </div>
-            <span class="sublist-amount">${formatCurrency(c.amount)}</span>
-        </div>`;
+    const block = (titleKey, cheques) => getTranslation(titleKey) + ':\n' +
+        cheques.map((c, i) => `${c.number || (i + 1)}) ${formatChequeDate(c.date, lang)} — ${formatCurrency(c.amount)} (${monthsText(c.months)})`).join('\n') +
+        '\n' + getTranslation('totalLabel') + ': ' + formatCurrency(sumAmounts(cheques));
+    const meta = (window._lastRender && window._lastRender[4]) || {};
+    let text = meta.clientName ? meta.clientName + '\n\n' : '';
+    text += block('clientDebtsTitle', window.currentClientCheques || []);
+    if (window.currentGuarantorCheques && window.currentGuarantorCheques.length) {
+        text += '\n\n' + block('guarChecksTitle', window.currentGuarantorCheques);
     }
-    container.innerHTML = html;
+    return text;
 }
 
-/* Build a tooltip label like "الشيك الأول للعميل" / "الشيك الثاني للضامن".
+/* Build a label like "الشيك الأول للعميل" / "الشيك الثاني للضامن".
    type: 'client' | 'guar'. */
 function chequeLabel(num, type, lang) {
     if (lang === 'ar') {
@@ -163,137 +155,39 @@ function chequeLabel(num, type, lang) {
     return `Cheque #${num} (${who})`;
 }
 
-/* Render the payment distribution bar chart using Chart.js.
-   Reads only the already-computed cheque data — no recalculation. */
-function renderChart(clientCheques, guarantorCheques, hasGuarantor) {
-    const canvas = document.getElementById('chequesChart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    const lang = getCurrentLang();
-    const dateOpts = { month: 'short', year: '2-digit' };
-    const fmtDate = (d) => new Date(d).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', dateOpts);
-
-    // Pull theme-aware colors from CSS variables
-    const css = getComputedStyle(document.body);
-    const blue = (css.getPropertyValue('--electric-blue') || '#8B1E2B').trim();
-    const green = (css.getPropertyValue('--success') || '#10B981').trim();
-    const gridColor = (css.getPropertyValue('--border-color') || 'rgba(120,140,170,0.2)').trim();
-    const textColor = (css.getPropertyValue('--text-muted') || '#56708F').trim();
-
-    const labels = clientCheques.map(c => fmtDate(c.date));
-    const datasets = [{
-        label: getTranslation('clientDebtsTitle') || 'شيكات العميل',
-        data: clientCheques.map(c => c.amount),
-        chequeNumbers: clientCheques.map((c, i) => c.number || (i + 1)),
-        chequeType: 'client',
-        backgroundColor: blue,
-        borderRadius: 6,
-        maxBarThickness: 46
-    }];
-
-    if (hasGuarantor && guarantorCheques && guarantorCheques.length > 0) {
-        datasets.push({
-            label: getTranslation('guarChecksTitle') || 'شيكات الضامن',
-            data: guarantorCheques.map(c => ({ x: fmtDate(c.date), y: c.amount })),
-            chequeNumbers: guarantorCheques.map((c, i) => c.number || (i + 1)),
-            chequeType: 'guar',
-            backgroundColor: green,
-            borderRadius: 6,
-            maxBarThickness: 46
-        });
-    }
-
-    // Destroy previous instance before redrawing to avoid leaks
-    if (window._chequesChart) {
-        window._chequesChart.destroy();
-    }
-
-    window._chequesChart = new Chart(canvas.getContext('2d'), {
-        type: 'bar',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            locale: lang === 'ar' ? 'ar-EG' : 'en-US',
-            plugins: {
-                legend: {
-                    display: datasets.length > 1,
-                    labels: { color: textColor, font: { family: 'Cairo' } }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => {
-                            const ds = ctx.dataset;
-                            const num = (ds.chequeNumbers && ds.chequeNumbers[ctx.dataIndex]) || (ctx.dataIndex + 1);
-                            return `${chequeLabel(num, ds.chequeType, lang)}: ${formatCurrency(ctx.parsed.y)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    reverse: lang === 'ar',
-                    grid: { display: false },
-                    ticks: { color: textColor, font: { family: 'Cairo', size: 11 } }
-                },
-                y: {
-                    grid: { color: gridColor },
-                    ticks: {
-                        color: textColor,
-                        font: { family: 'Cairo', size: 11 },
-                        callback: (v) => v >= 1000 ? (v / 1000) + 'k' : v
-                    }
-                }
-            }
-        }
-    });
-}
-
+/* Printout: one table per party with months + total, then signature lines. */
 function buildPrintableCheques(clientCheques, guarantorCheques, hasGuarantor) {
-    const clientContainer = document.getElementById('printClientChequesContainer');
-    const guarContainer = document.getElementById('printGuarantorChequesContainer');
-    
-    if (clientContainer) clientContainer.innerHTML = '';
-    if (guarContainer) guarContainer.innerHTML = '';
-    
+    const container = document.getElementById('printChequesContainer');
+    if (!container) return;
     const lang = getCurrentLang();
-    const dateOpts = { year: 'numeric', month: 'short', day: 'numeric' };
 
     const buildTable = (cheques, titleKey) => {
-        let html = `<h4 style="margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px;">${getTranslation(titleKey)}</h4>`;
-        html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem;">
-            <thead>
-                <tr>
-                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('chequeNumber')}</th>
-                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('thDate') || 'تاريخ الاستحقاق'}</th>
-                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('monthsCol')}</th>
-                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('amountCol')}</th>
-                </tr>
-            </thead>
-            <tbody>`;
-            
-        cheques.forEach(cheque => {
-            const dateObj = new Date(cheque.date);
-            const formattedDate = dateObj.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', dateOpts);
-            
-            html += `<tr>
-                <td style="padding: 8px; border: 1px solid #000; text-align: right;">${cheque.number}</td>
-                <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formattedDate}</td>
-                <td style="padding: 8px; border: 1px solid #000; text-align: right;">${cheque.months || ''}</td>
-                <td style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: bold;">${formatCurrency(cheque.amount)}</td>
-            </tr>`;
-        });
-        html += `</tbody></table>`;
-        return html;
+        const rows = cheques.map((c, i) => `<tr>
+                <td>${c.number || (i + 1)}</td>
+                <td>${formatChequeDate(c.date, lang)}</td>
+                <td>${c.months || ''}</td>
+                <td class="p-amt">${formatCurrency(c.amount)}</td>
+            </tr>`).join('');
+        return `<h4 class="p-sec">${getTranslation(titleKey)}</h4>
+            <table class="p-table">
+                <thead><tr>
+                    <th>${getTranslation('chequeNumber')}</th>
+                    <th>${getTranslation('thDate')}</th>
+                    <th>${getTranslation('monthsCol')}</th>
+                    <th>${getTranslation('amountCol')}</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+                <tfoot><tr><td colspan="3">${getTranslation('totalLabel')}</td><td class="p-amt">${formatCurrency(sumAmounts(cheques))}</td></tr></tfoot>
+            </table>`;
     };
 
-    if (clientCheques && clientCheques.length > 0 && clientContainer) {
-        clientContainer.innerHTML = buildTable(clientCheques, 'clientDebtsTitle');
+    let html = buildTable(clientCheques, 'printClientSec');
+    if (hasGuarantor && guarantorCheques && guarantorCheques.length > 0) {
+        html += buildTable(guarantorCheques, 'printGuarSec');
     }
-
-    if (hasGuarantor && guarantorCheques && guarantorCheques.length > 0 && guarContainer) {
-        guarContainer.innerHTML = buildTable(guarantorCheques, 'guarChecksTitle');
-    }
+    const signs = ['signClient'].concat(hasGuarantor ? ['signGuar'] : [], ['signEmployee']);
+    html += `<div class="p-signs">${signs.map(k => `<div>${getTranslation(k)}</div>`).join('')}</div>`;
+    container.innerHTML = html;
 }
 
 function renderChequesList(cheques, titleKey) {

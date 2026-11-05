@@ -36,7 +36,7 @@ window.addEventListener('appinstalled', function () {
 
 // 2.6) "App updated" notice — shown once when a returning user gets a new
 //      release. Bump APP_VERSION with every release (alongside SW_VERSION).
-var APP_VERSION = '2026.11.3';
+var APP_VERSION = '2026.11.4';
 var CF_VERSION_KEY = 'chequeflex-version';
 // A page already controlled by a service worker means a returning visitor
 var cfReturningUser = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
