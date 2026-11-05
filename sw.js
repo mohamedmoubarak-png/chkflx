@@ -14,7 +14,7 @@
  * ============================================================
  */
 
-const SW_VERSION = 'chequeflex-sw-v6';
+const SW_VERSION = 'chequeflex-sw-v9';
 const CACHE_NAME = SW_VERSION;
 
 // ملفات التطبيق الأساسية — تُخزَّن لتشغيل الحاسبة بدون إنترنت
@@ -22,7 +22,9 @@ const APP_SHELL = [
     './',
     './index.html',
     './manifest.json',
-    './chkflx.png',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/apple-touch-icon.png',
     './icons/icon.svg',
     './css/style.css',
     './js/analytics.js',
@@ -107,8 +109,8 @@ function buildOfflinePage() {
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Cairo', sans-serif;
-            background: #081628;
-            color: #E8EEF8;
+            background: #170609;
+            color: #F8EDE5;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -118,23 +120,23 @@ function buildOfflinePage() {
             padding: 24px;
         }
         .logo-wrap { margin-bottom: 32px; }
-        .logo-wrap svg { filter: drop-shadow(0 0 24px rgba(74,127,232,0.4)); }
+        .logo-wrap svg { filter: drop-shadow(0 0 24px rgba(212,168,75,0.4)); }
         .title {
             font-size: 1.6rem;
             font-weight: 800;
             margin-bottom: 12px;
-            color: #4A7FE8;
+            color: #D4A84B;
         }
         .msg {
             font-size: 1rem;
             font-weight: 600;
-            color: #7A9AC0;
+            color: #CDAFA4;
             max-width: 360px;
             line-height: 1.8;
             margin-bottom: 32px;
         }
         .retry-btn {
-            background: linear-gradient(135deg, #2B62F0, #4A7FE8);
+            background: linear-gradient(135deg, #8B1E2B, #B8323F);
             color: #fff;
             border: none;
             border-radius: 12px;
@@ -150,30 +152,33 @@ function buildOfflinePage() {
             position: fixed;
             bottom: 16px;
             font-size: 0.72rem;
-            color: #3A5878;
+            color: #9A7A72;
             font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="logo-wrap">
-        <svg width="90" height="90" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="512" height="512" rx="96" fill="#0D1F3C"/>
-            <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
-                  stroke="url(#cG)" stroke-width="56" stroke-linecap="round" fill="none"/>
-            <path d="M120 240L200 320L340 160"
-                  stroke="url(#kG)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <defs>
-                <linearGradient id="cG" x1="16" y1="60" x2="380" y2="420" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#4A7FE8"/>
-                    <stop offset="100%" stop-color="#1D50D8"/>
-                </linearGradient>
-                <linearGradient id="kG" x1="120" y1="160" x2="340" y2="320" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#C5D0E4"/>
-                    <stop offset="100%" stop-color="#E8EEF8"/>
-                </linearGradient>
-            </defs>
-        </svg>
+        <svg width="90" height="90" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect width="512" height="512" rx="96" fill="url(#offBg)"/>
+  <rect x="18" y="18" width="476" height="476" rx="80" fill="none" stroke="#E3B65A" stroke-opacity="0.45" stroke-width="5"/>
+  <path d="M362 150A150 150 0 1 0 362 362" stroke="url(#offC)" stroke-width="52" stroke-linecap="round" fill="none"/>
+  <path d="M180 262L238 320L348 196" stroke="url(#offK)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <defs>
+    <linearGradient id="offBg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A3283A"/>
+      <stop offset="100%" stop-color="#4E0D15"/>
+    </linearGradient>
+    <linearGradient id="offC" x1="106" y1="106" x2="406" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6DE9A"/>
+      <stop offset="100%" stop-color="#C08F1E"/>
+    </linearGradient>
+    <linearGradient id="offK" x1="180" y1="196" x2="348" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8EDE0"/>
+    </linearGradient>
+  </defs>
+</svg>
     </div>
     <div class="title">ChequeFlex</div>
     <p class="msg">

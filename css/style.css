@@ -10,60 +10,62 @@
 /* ================================= */
 /* 1. Design System & Theming        */
 /* ================================= */
+/* Palette: brick red (burgundy) + gold. Token names kept for compatibility:
+   --royal-gold / --electric-blue = primary brick, --navy-blue = heading tone. */
 :root {
-    /* Light Mode — ChequeFlex "Premium Fintech" Palette */
-    --bg-body: #F4F7FC;
-    --bg-gradient: linear-gradient(135deg, #F4F7FC 0%, #E4ECF8 100%);
+    /* Light Mode — Brick & Gold */
+    --bg-body: #FAF6F1;
+    --bg-gradient: linear-gradient(135deg, #FAF6F1 0%, #F2E7DC 100%);
     --bg-card: #FFFFFF;
-    --text-main: #0B1D3A;
-    --text-muted: #56708F;
-    --border-color: rgba(197, 210, 232, 0.9);
-    --navy-blue: #0B1D3A;
-    --royal-gold: #2456E5;           /* Brand Electric Blue */
-    --royal-gold-hover: #1A45C8;     /* Darker blue hover */
-    --slate-gray: #7A90B0;
+    --text-main: #2B0D11;
+    --text-muted: #7A5853;
+    --border-color: rgba(214, 190, 172, 0.9);
+    --navy-blue: #5E1119;
+    --royal-gold: #8B1E2B;           /* Primary brick red */
+    --royal-gold-hover: #6E1520;     /* Darker brick hover */
+    --slate-gray: #A2867E;
     --success: #0E9F6E;
-    --danger: #EF4444;
+    --danger: #DC2626;
     --danger-bg: #FEF2F2;
-    --input-bg: #F0F4FB;
-    --shadow-sm: 0 1px 3px rgba(13,37,80,0.06), 0 4px 16px rgba(13,37,80,0.05);
-    --shadow-md: 0 6px 18px rgba(13,37,80,0.10), 0 12px 36px rgba(13,37,80,0.08);
+    --input-bg: #F8F0E9;
+    --shadow-sm: 0 1px 3px rgba(60,15,20,0.06), 0 4px 16px rgba(60,15,20,0.05);
+    --shadow-md: 0 6px 18px rgba(60,15,20,0.10), 0 12px 36px rgba(60,15,20,0.08);
     --border-radius: 16px;
-    --focus-ring: 0 0 0 3px rgba(36, 86, 229, 0.25);
-    --highlight-row: #EEF4FF;
-    --chrome-silver: #C5D0E4;
-    --electric-blue: #2456E5;
-    --deep-navy: #081628;
+    --focus-ring: 0 0 0 3px rgba(139, 30, 43, 0.25);
+    --highlight-row: #FBEFE6;
+    --chrome-silver: #E3C98F;
+    --electric-blue: #8B1E2B;
+    --deep-navy: #3A0A10;
     /* Gold accent — monetary value emphasis */
-    --gold: #B8860B;
+    --gold: #A97A0F;
     --gold-bg: #FBF3DE;
 }
 
 [data-theme="dark"] {
-    /* Dark Mode — ChequeFlex "Premium Fintech" Palette */
-    --bg-body: #050E1F;
-    --bg-gradient: linear-gradient(135deg, #050E1F 0%, #0A1A30 100%);
-    --bg-card: #0C1B33;
-    --text-main: #EAF1FB;
-    --text-muted: #8AA6CC;
-    --border-color: rgba(59, 111, 245, 0.18);
-    --navy-blue: #4A7FE8;
-    --royal-gold: #3B6FF5;           /* Vivid blue on dark */
-    --royal-gold-hover: #2456E5;
-    --slate-gray: #5A7898;
+    /* Dark Mode — Brick & Gold */
+    --bg-body: #170609;
+    --bg-gradient: linear-gradient(135deg, #170609 0%, #2A0C11 100%);
+    --bg-card: #26090E;
+    --text-main: #F8EDE5;
+    --text-muted: #CDAFA4;
+    --border-color: rgba(212, 168, 75, 0.18);
+    --navy-blue: #E3B65A;
+    --royal-gold: #B8323F;           /* Brighter brick on dark */
+    --royal-gold-hover: #9A2633;
+    --slate-gray: #9A7A72;
     --success: #10B981;
     --danger: #EF4444;
     --danger-bg: #1A0A0A;
-    --input-bg: rgba(13, 31, 60, 0.8);
-    --highlight-row: #0A1F40;
+    --input-bg: rgba(58, 16, 22, 0.8);
+    --highlight-row: #3A1118;
     --shadow-sm: 0 4px 10px rgba(0,0,0,0.4);
     --shadow-md: 0 10px 30px rgba(0,0,0,0.55);
-    --chrome-silver: #8AAAD4;
-    --electric-blue: #3B6FF5;
-    --deep-navy: #040D1A;
+    --chrome-silver: #E6C27A;
+    --electric-blue: #D4A84B;
+    --deep-navy: #0F0305;
     /* Gold accent — monetary value emphasis */
-    --gold: #E0B43A;
-    --gold-bg: rgba(224, 180, 58, 0.10);
+    --gold: #E3B65A;
+    --gold-bg: rgba(227, 182, 90, 0.10);
 }
 
 * {
@@ -215,18 +217,18 @@ input[type=number] { -moz-appearance: textfield; }
     background-image: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-hover));
     background-color: var(--royal-gold);
     color: #fff;
-    box-shadow: 0 4px 14px rgba(36, 86, 229, 0.30);
+    box-shadow: 0 4px 14px rgba(139, 30, 43, 0.30);
 }
 
 .btn-primary:hover {
     background-image: linear-gradient(135deg, var(--royal-gold-hover), var(--royal-gold-hover));
     transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(36, 86, 229, 0.40);
+    box-shadow: 0 8px 22px rgba(139, 30, 43, 0.40);
 }
 
 .btn-primary:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(36, 86, 229, 0.30);
+    box-shadow: 0 2px 8px rgba(139, 30, 43, 0.30);
 }
 
 .btn-success {
@@ -502,7 +504,7 @@ input[type=number] { -moz-appearance: textfield; }
 [dir="rtl"] .stat-card::before { right: 0; }
 [dir="ltr"] .stat-card::before { left: 0; }
 
-.stat-card.gold::before { background: linear-gradient(180deg, #E6C661, var(--gold)); }
+.stat-card.gold::before { background: linear-gradient(180deg, #F0D58A, var(--gold)); }
 .stat-card.emerald::before { background-color: var(--success); }
 
 /* Icon badge at top of each stat card */
@@ -514,7 +516,7 @@ input[type=number] { -moz-appearance: textfield; }
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    background: rgba(36, 86, 229, 0.12);
+    background: rgba(139, 30, 43, 0.12);
     color: var(--electric-blue);
 }
 .stat-card.gold .stat-icon {
@@ -567,7 +569,7 @@ input[type=number] { -moz-appearance: textfield; }
     padding: 26px 28px;
     margin-bottom: 24px;
     color: #fff;
-    box-shadow: 0 10px 30px rgba(36, 86, 229, 0.28);
+    box-shadow: 0 10px 30px rgba(139, 30, 43, 0.28);
     position: relative;
     overflow: hidden;
     animation: cardIn 0.45s ease both;
@@ -823,6 +825,21 @@ tr.current-month:hover {
     filter: brightness(0.95);
 }
 
+.result-meta {
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.partial-note { color: var(--gold); font-weight: 700; margin-top: 4px; }
+.partial-note:empty { display: none; }
+.sublist-months { font-size: 0.75rem; color: var(--gold); font-weight: 700; }
+.results-disclaimer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
 .print-only { display: none; }
 
 @media print {
@@ -837,13 +854,13 @@ tr.current-month:hover {
         display: flex;
         flex-direction: column;
         align-items: center;
-        border-bottom: 3px solid #081628;
+        border-bottom: 3px solid #3A0A10;
         padding-bottom: 20px;
         margin-bottom: 30px;
         text-align: center;
     }
-    .print-logo { font-size: 2.5rem; font-weight: 900; color: #081628; }
-    .print-logo span { color: #1D50D8; }
+    .print-logo { font-size: 2.5rem; font-weight: 900; color: #3A0A10; }
+    .print-logo span { color: #A97A0F; }
     
     .client-print-meta {
         width: 100%;
@@ -860,7 +877,7 @@ tr.current-month:hover {
     .accordion-inner { padding: 0 !important; }
     .accordion-head {
         background: #fff !important; color: #000 !important;
-        padding: 0 0 8px 0 !important; border-bottom: 2px solid #081628 !important;
+        padding: 0 0 8px 0 !important; border-bottom: 2px solid #3A0A10 !important;
         margin-bottom: 12px;
     }
     .acc-value { font-size: 1.3rem !important; }

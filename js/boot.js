@@ -17,7 +17,7 @@
         if (localStorage.getItem('chequeflex-theme') === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             var m = document.getElementById('themeColorMeta');
-            if (m) m.setAttribute('content', '#050E1F');
+            if (m) m.setAttribute('content', '#170609');
         }
     } catch (e) {}
 })();
@@ -34,8 +34,48 @@ window.addEventListener('appinstalled', function () {
     document.dispatchEvent(new Event('pwa-installed'));
 });
 
+// 2.6) "App updated" notice — shown once when a returning user gets a new
+//      release. Bump APP_VERSION with every release (alongside SW_VERSION).
+var APP_VERSION = '2026.11.3';
+var CF_VERSION_KEY = 'chequeflex-version';
+// A page already controlled by a service worker means a returning visitor
+var cfReturningUser = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+
+function cfShowUpdatedToast() {
+    var isEn = (document.documentElement.getAttribute('lang') || 'ar').indexOf('en') === 0;
+    var t = document.createElement('div');
+    t.setAttribute('role', 'status');
+    t.textContent = isEn ? '✓ App updated to the latest version' : '✓ تم تحديث البرنامج إلى أحدث إصدار';
+    t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translate(-50%,-12px);' +
+        'background:var(--royal-gold);color:#fff;border:1px solid var(--gold);' +
+        'padding:12px 22px;border-radius:12px;font-weight:700;font-size:0.95rem;' +
+        'z-index:3000;box-shadow:0 10px 28px rgba(0,0,0,0.28);width:max-content;max-width:calc(100vw - 32px);' +
+        'text-align:center;opacity:0;transition:opacity .3s, transform .3s;';
+    document.body.appendChild(t);
+    requestAnimationFrame(function () {
+        t.style.opacity = '1';
+        t.style.transform = 'translate(-50%,0)';
+    });
+    setTimeout(function () {
+        t.style.opacity = '0';
+        setTimeout(function () { t.remove(); }, 400);
+    }, 4000);
+}
+
+function cfCheckForUpdateNotice() {
+    var stored = null;
+    try { stored = localStorage.getItem(CF_VERSION_KEY); } catch (e) {}
+    var updated = stored ? stored !== APP_VERSION : cfReturningUser;
+    function remember() { try { localStorage.setItem(CF_VERSION_KEY, APP_VERSION); } catch (e) {} }
+    if (!updated) { remember(); return; }
+    // Show after the splash screen has gone. The version is saved only once the
+    // notice is shown, so a service-worker reload in between doesn't swallow it.
+    setTimeout(function () { remember(); cfShowUpdatedToast(); }, 3200);
+}
+
 // 3) Splash auto-hide + Service Worker registration (after full load)
 window.addEventListener('load', function () {
+    cfCheckForUpdateNotice();
     var splash = document.getElementById('splashScreen');
     if (splash) {
         setTimeout(function () {
@@ -43,7 +83,7 @@ window.addEventListener('load', function () {
             // Sync browser UI color with the active theme once splash is gone
             var isDark = document.body.getAttribute('data-theme') === 'dark';
             var meta = document.getElementById('themeColorMeta');
-            if (meta) meta.setAttribute('content', isDark ? '#050E1F' : '#F4F7FC');
+            if (meta) meta.setAttribute('content', isDark ? '#170609' : '#FAF6F1');
             setTimeout(function () { splash.remove(); }, 550);
         }, 2500);
     }

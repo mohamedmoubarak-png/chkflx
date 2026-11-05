@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Background -->
-  <rect width="512" height="512" rx="96" fill="#081628"/>
-  <!-- C arc -->
-  <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
-        stroke="url(#cGrad)" stroke-width="56" stroke-linecap="round" fill="none"/>
-  <!-- Checkmark -->
-  <path d="M120 240L200 320L340 160"
-        stroke="url(#kGrad)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect width="512" height="512" rx="96" fill="url(#icBg)"/>
+  <rect x="18" y="18" width="476" height="476" rx="80" fill="none" stroke="#E3B65A" stroke-opacity="0.45" stroke-width="5"/>
+  <path d="M362 150A150 150 0 1 0 362 362" stroke="url(#icC)" stroke-width="52" stroke-linecap="round" fill="none"/>
+  <path d="M180 262L238 320L348 196" stroke="url(#icK)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <defs>
-    <linearGradient id="cGrad" x1="16" y1="60" x2="380" y2="420" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4A7FE8"/>
-      <stop offset="100%" stop-color="#1D50D8"/>
+    <linearGradient id="icBg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A3283A"/>
+      <stop offset="100%" stop-color="#4E0D15"/>
     </linearGradient>
-    <linearGradient id="kGrad" x1="120" y1="160" x2="340" y2="320" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#C5D0E4"/>
-      <stop offset="100%" stop-color="#E8EEF8"/>
+    <linearGradient id="icC" x1="106" y1="106" x2="406" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6DE9A"/>
+      <stop offset="100%" stop-color="#C08F1E"/>
+    </linearGradient>
+    <linearGradient id="icK" x1="180" y1="196" x2="348" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8EDE0"/>
     </linearGradient>
   </defs>
 </svg>
