@@ -11,7 +11,7 @@
 
 const translations = {
     ar: {
-        pageTitle: "Investo Cheque Pro | حاسبة المشروعات",
+        pageTitle: "ChequeFlex | حاسبة الشيكات الذكية",
         printTitle: "عرض مديونية وتسوية شيكات المشروعات الصغيرة",
         printClient: "العميل: ",
         printDateLabel: "التاريخ: ",
@@ -43,6 +43,14 @@ const translations = {
         firstCheckLabel: "قيمة الشيك الأول",
         showAllCheques: "عرض مبالغ الشيكات",
         chequeNumber: "شيك رقم",
+        errorProductCode: "كود المنتج غير موجود",
+        thDate: "تاريخ الاستحقاق",
+        monthsCol: "عدد الشهور",
+        amountCol: "المبلغ",
+        monthsUnit: "شهور",
+        lastChequeNote: "آخر شيك ({m} شهور): {v}",
+        resultMeta: "المنتج {code} — فائدة {rate}% سنويًا — مدة {d} شهر",
+        disclaimer: "الأرقام استرشادية، والمرجع النهائي هو نظام البنك.",
         guarChecksTitle: "شيكات الضامن",
         guarCountLabel: "عدد الشيكات",
         guarCountDesc: "سنوية الإستحقاق",
@@ -56,7 +64,7 @@ const translations = {
         footerCredit: "developed by"
     },
     en: {
-        pageTitle: "Investo Cheque Pro | Project Calculator",
+        pageTitle: "ChequeFlex | Smart Cheque Calculator",
         printTitle: "Small Projects Debt & Cheque Settlement Statement",
         printClient: "Client: ",
         printDateLabel: "Date: ",
@@ -88,6 +96,14 @@ const translations = {
         firstCheckLabel: "First Cheque Value",
         showAllCheques: "Show Cheques Amounts",
         chequeNumber: "Cheque #",
+        errorProductCode: "Product code not found",
+        thDate: "Due date",
+        monthsCol: "Months",
+        amountCol: "Amount",
+        monthsUnit: "months",
+        lastChequeNote: "Last cheque ({m} months): {v}",
+        resultMeta: "Product {code} — {rate}% annual interest — {d} months",
+        disclaimer: "Figures are indicative; the bank system is the final reference.",
         guarChecksTitle: "Guarantor Cheques",
         guarCountLabel: "Cheques Count",
         guarCountDesc: "Annual maturity",
@@ -103,10 +119,12 @@ const translations = {
 };
 
 let currentLang = 'ar'; // Default
+const CF_LANG_KEY = 'chequeflex-lang';
 
 function setLanguage(lang) {
     if (!translations[lang]) return;
     currentLang = lang;
+    try { localStorage.setItem(CF_LANG_KEY, lang); } catch (e) {}
     
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -135,6 +153,20 @@ function setLanguage(lang) {
 
 function getTranslation(key) {
     return translations[currentLang][key] || key;
+}
+
+/* Language the user chose last time (defaults to Arabic). */
+function getSavedLang() {
+    try {
+        const v = localStorage.getItem(CF_LANG_KEY);
+        if (v && translations[v]) return v;
+    } catch (e) {}
+    return 'ar';
+}
+
+/* Fill {placeholders} in a translated template. */
+function formatTranslation(key, vars) {
+    return getTranslation(key).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 }
 
 function getCurrentLang() {

@@ -65,6 +65,10 @@ function renderResults(results, loanAmount, duration, hasGuarantor) {
         guarPanel.style.display = 'none';
     }
 
+    // Note under "remaining cheques" when the last cheque covers fewer months
+    setPartialNote('clientPartialNote', clientCheques, 6);
+    setPartialNote('guarPartialNote', hasGuarantor ? guarantorCheques : [], 12);
+
     document.getElementById('resultsSection').style.display = 'block';
 
     // Generate printable cheques list
@@ -78,6 +82,16 @@ function renderResults(results, loanAmount, duration, hasGuarantor) {
         document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
         window.hasScrolled = true;
     }
+}
+
+/* Show "Last cheque (3 months): 9,758.90" when the final cheque is partial. */
+function setPartialNote(id, cheques, period) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const last = cheques.length > 1 ? cheques[cheques.length - 1] : null;
+    el.textContent = (last && last.months && last.months < period)
+        ? formatTranslation('lastChequeNote', { m: last.months, v: formatCurrency(last.amount) })
+        : '';
 }
 
 /* Set a stat-card value and trigger a brief pulse animation */
@@ -127,6 +141,7 @@ function buildRemainingList(cheques, containerId, type) {
             <div class="sublist-info">
                 <span class="sublist-num">${chequeLabel(c.number || (i + 1), type, lang)}</span>
                 <span class="sublist-date">${dateStr}</span>
+                ${c.months ? `<span class="sublist-months">${c.months} ${getTranslation('monthsUnit')}</span>` : ''}
             </div>
             <span class="sublist-amount">${formatCurrency(c.amount)}</span>
         </div>`;
@@ -251,7 +266,8 @@ function buildPrintableCheques(clientCheques, guarantorCheques, hasGuarantor) {
                 <tr>
                     <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('chequeNumber')}</th>
                     <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('thDate') || 'تاريخ الاستحقاق'}</th>
-                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">المبلغ</th>
+                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('monthsCol')}</th>
+                    <th style="padding: 8px; border: 1px solid #000; text-align: right;">${getTranslation('amountCol')}</th>
                 </tr>
             </thead>
             <tbody>`;
@@ -263,6 +279,7 @@ function buildPrintableCheques(clientCheques, guarantorCheques, hasGuarantor) {
             html += `<tr>
                 <td style="padding: 8px; border: 1px solid #000; text-align: right;">${cheque.number}</td>
                 <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formattedDate}</td>
+                <td style="padding: 8px; border: 1px solid #000; text-align: right;">${cheque.months || ''}</td>
                 <td style="padding: 8px; border: 1px solid #000; text-align: right; font-weight: bold;">${formatCurrency(cheque.amount)}</td>
             </tr>`;
         });

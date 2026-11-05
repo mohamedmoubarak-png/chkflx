@@ -825,6 +825,21 @@ tr.current-month:hover {
     filter: brightness(0.95);
 }
 
+.result-meta {
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.partial-note { color: var(--gold); font-weight: 700; margin-top: 4px; }
+.partial-note:empty { display: none; }
+.sublist-months { font-size: 0.75rem; color: var(--gold); font-weight: 700; }
+.results-disclaimer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
 .print-only { display: none; }
 
 @media print {

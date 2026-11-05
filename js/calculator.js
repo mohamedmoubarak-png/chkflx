@@ -82,49 +82,36 @@ function generateSchedule(loanAmount, duration, annualRate, disburseDateStr) {
 
     const actualFirstInstallment = regularEMI + graceInterest;
 
-    // --- 3. حساب شيكات العميل (كل 6 شهور) ---
-    const clientCheques = [];
-    const clientChequeCount = duration / 6;
-
-    for (let i = 1; i <= clientChequeCount; i++) {
-        let chequeAmount;
-        if (i === 1) {
-            chequeAmount = (5 * regularEMI) + actualFirstInstallment;
-        } else {
-            chequeAmount = 6 * regularEMI;
+    // --- 3/4. تجميع الأقساط في شيكات ---
+    // كل شيك يغطي `period` شهر (6 للعميل، 12 للضامن). لو المدة مش من
+    // مضاعفات الـ period، آخر شيك بيغطي الشهور الباقية بس
+    // (مثال: 33 شهر → عميل 5 شيكات × 6 + شيك 3 شهور، ضامن 2 × 12 + شيك 9 شهور).
+    // الشيك الأول = القسط الفعلي الأول (شامل فائدة السماح) + باقي أقساط فترته.
+    function buildCheques(period) {
+        const cheques = [];
+        let start = 0;
+        let number = 0;
+        while (start < duration) {
+            const months = Math.min(period, duration - start);
+            number++;
+            const amount = (start === 0)
+                ? ((months - 1) * regularEMI) + actualFirstInstallment
+                : months * regularEMI;
+            // تاريخ الشيك = تاريخ آخر قسط في فترته
+            const dateObj = new Date(installmentDates[start + months - 1].getTime());
+            cheques.push({
+                number,
+                amount,
+                months,
+                date: dateObj.toLocaleDateString('en-US')
+            });
+            start += months;
         }
-
-        let dateObj = new Date(installmentDates[0].getTime());
-        dateObj.setMonth(dateObj.getMonth() + (i * 6) - 1);
-
-        clientCheques.push({
-            number: i,
-            amount: chequeAmount,
-            date: dateObj.toLocaleDateString('en-US')
-        });
+        return cheques;
     }
 
-    // --- 4. حساب شيكات الضامن (كل 12 شهر) ---
-    const guarantorCheques = [];
-    const guarantorChequeCount = duration / 12;
-
-    for (let i = 1; i <= guarantorChequeCount; i++) {
-        let chequeAmount;
-        if (i === 1) {
-            chequeAmount = (11 * regularEMI) + actualFirstInstallment;
-        } else {
-            chequeAmount = 12 * regularEMI;
-        }
-
-        let dateObj = new Date(installmentDates[0].getTime());
-        dateObj.setMonth(dateObj.getMonth() + (i * 12) - 1);
-
-        guarantorCheques.push({
-            number: i,
-            amount: chequeAmount,
-            date: dateObj.toLocaleDateString('en-US')
-        });
-    }
+    const clientCheques = buildCheques(6);       // العميل: كل 6 شهور
+    const guarantorCheques = buildCheques(12);   // الضامن: سنوي
 
     return {
         regularEMI,

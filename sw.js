@@ -14,7 +14,7 @@
  * ============================================================
  */
 
-const SW_VERSION = 'chequeflex-sw-v8';
+const SW_VERSION = 'chequeflex-sw-v9';
 const CACHE_NAME = SW_VERSION;
 
 // ملفات التطبيق الأساسية — تُخزَّن لتشغيل الحاسبة بدون إنترنت

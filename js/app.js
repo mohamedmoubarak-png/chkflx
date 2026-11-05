@@ -55,7 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
         disburseDateInput.value = new Date().toISOString().split('T')[0];
     }
 
-    setLanguage('ar');
+    // Restore the language chosen last time (default Arabic)
+    setLanguage(getSavedLang());
+    currentLangLabel.textContent = getCurrentLang() === 'ar' ? 'EN' : 'AR';
     updatePrintDate();
 
     // --- 4. Event Listeners (all wired up immediately) ---
@@ -80,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLanguage(newLang);
         currentLangLabel.textContent = newLang === 'ar' ? 'EN' : 'AR';
         updatePrintDate();
+        updateResultMeta();
     });
 
     // Guarantor Toggle
@@ -317,9 +320,10 @@ document.addEventListener('DOMContentLoaded', () => {
             clearError(productCodeInput);
         }
 
-        // Duration
-        const duration = parseInt(durationInput.value);
-        if (isNaN(duration) || duration < 6 || duration % 6 !== 0) {
+        // Duration — any whole number of months from 6 up; when it isn't a
+        // multiple of 6/12 the last cheque simply covers the remaining months.
+        const duration = Number(durationInput.value);
+        if (!Number.isInteger(duration) || duration < 6) {
             showError(durationInput);
             isValid = false;
         } else {
@@ -376,6 +380,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const results = generateSchedule(loanAmount, duration, annualRate, disburseDateStr);
         renderResults(results, loanAmount, duration, hasGuarantor);
+
+        lastResultMeta = { code: selectedCode, rate: annualRate, duration };
+        updateResultMeta();
+    }
+
+    // "Product IS18 — 5% annual — 36 months" line on screen and on the printout
+    let lastResultMeta = null;
+    function updateResultMeta() {
+        if (!lastResultMeta) return;
+        const text = formatTranslation('resultMeta', {
+            code: lastResultMeta.code,
+            rate: (lastResultMeta.rate * 100).toFixed(2),
+            d: lastResultMeta.duration
+        });
+        const meta = document.getElementById('resultMeta');
+        const printMeta = document.getElementById('printMeta');
+        if (meta) meta.textContent = text;
+        if (printMeta) printMeta.textContent = text;
     }
 
     // --- 6. Load products AFTER all listeners are set up ---
