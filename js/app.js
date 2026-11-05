@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLangLabel.textContent = newLang === 'ar' ? 'EN' : 'AR';
         updatePrintDate();
         updateResultMeta();
+        rerenderResults();
     });
 
     // Guarantor Toggle
@@ -161,6 +162,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Print results button (replaces inline onclick for CSP compliance)
     const printResultsBtn = document.getElementById('printResultsBtn');
     if (printResultsBtn) printResultsBtn.addEventListener('click', () => window.print());
+    const printBarBtn = document.getElementById('printBarBtn');
+    if (printBarBtn) printBarBtn.addEventListener('click', () => window.print());
+
+    // Copy one amount (copy icon next to each cheque) or all amounts as text
+    async function copyText(text) {
+        try { await navigator.clipboard.writeText(text); return true; }
+        catch (e) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select();
+                const ok = document.execCommand('copy'); ta.remove(); return ok;
+            } catch (e2) { return false; }
+        }
+    }
+    document.getElementById('resultsSection').addEventListener('click', async (e) => {
+        const btn = e.target.closest('.cheque-copy');
+        if (!btn) return;
+        const value = btn.getAttribute('data-copy');
+        if (await copyText(value.replace(/,/g, ''))) {
+            showMiniToast(formatTranslation('copiedAmount', { v: value }));
+        }
+    });
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    if (copyAllBtn) copyAllBtn.addEventListener('click', async () => {
+        if (await copyText(buildCopyAllText())) showMiniToast(getTranslation('copiedAll'));
+    });
 
     // Lightweight toast for share/copy feedback
     function showMiniToast(msg) {
@@ -168,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!t) {
             t = document.createElement('div');
             t.id = 'miniToast';
-            t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);' +
+            t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);text-align:center;' +
                 'background:var(--royal-gold);color:#fff;padding:10px 20px;border-radius:10px;' +
                 'font-weight:700;font-size:0.9rem;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.25);' +
                 'opacity:0;transition:opacity .25s;';
@@ -286,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updatePrintDate() {
         const lang = getCurrentLang();
-        const dateStr = new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US');
+        const dateStr = new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US');
         printDate.textContent = getTranslation('printDateLabel') + dateStr;
     }
 
@@ -379,9 +407,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const annualRate = firebaseProducts[selectedCode] ? firebaseProducts[selectedCode].rate : 0.05;
 
         const results = generateSchedule(loanAmount, duration, annualRate, disburseDateStr);
-        renderResults(results, loanAmount, duration, hasGuarantor);
+        renderResults(results, loanAmount, duration, hasGuarantor, {
+            code: selectedCode,
+            rate: annualRate,
+            clientName: clientNameInput.value.trim()
+        });
 
-        lastResultMeta = { code: selectedCode, rate: annualRate, duration };
+        lastResultMeta = { code: selectedCode, rate: annualRate, duration, amount: formatCurrency(loanAmount) };
         updateResultMeta();
     }
 
@@ -392,7 +424,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = formatTranslation('resultMeta', {
             code: lastResultMeta.code,
             rate: (lastResultMeta.rate * 100).toFixed(2),
-            d: lastResultMeta.duration
+            d: lastResultMeta.duration,
+            amount: lastResultMeta.amount
         });
         const meta = document.getElementById('resultMeta');
         const printMeta = document.getElementById('printMeta');

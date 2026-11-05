@@ -825,15 +825,108 @@ tr.current-month:hover {
     filter: brightness(0.95);
 }
 
-.result-meta {
-    width: 100%;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted);
+/* ===== Results: summary band + cheque panels ===== */
+.summary-band {
+    background: linear-gradient(135deg, var(--royal-gold), var(--royal-gold-hover));
+    color: #fff;
+    border-radius: var(--border-radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
 }
-.partial-note { color: var(--gold); font-weight: 700; margin-top: 4px; }
-.partial-note:empty { display: none; }
-.sublist-months { font-size: 0.75rem; color: var(--gold); font-weight: 700; }
+.summary-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.summary-client { font-weight: 800; font-size: 1.1rem; }
+.summary-date { font-size: 0.82rem; opacity: 0.85; }
+.summary-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.summary-chip {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(227,182,90,0.45);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.cheques-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.cheques-grid.single { grid-template-columns: 1fr; }
+@media (max-width: 1100px) { .cheques-grid { grid-template-columns: 1fr; } }
+
+.cheque-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.cheque-panel-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+.cheque-panel-head h3 { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.panel-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--royal-gold); display: inline-block; }
+.cheque-panel.guar .panel-dot { background: var(--gold); }
+.panel-badge {
+    font-size: 0.75rem; font-weight: 700;
+    background: var(--input-bg); color: var(--royal-gold);
+    border-radius: 999px; padding: 2px 10px; white-space: nowrap;
+}
+.cheque-panel.guar .panel-badge { color: var(--gold); }
+
+.cheque-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto 34px;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+.cheque-row:last-child { border-bottom: none; }
+.cheque-num {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--input-bg); color: var(--royal-gold);
+    display: grid; place-items: center; font-weight: 800; font-size: 0.9rem;
+}
+.cheque-panel.guar .cheque-num { color: var(--gold); }
+.cheque-date { font-weight: 700; font-size: 0.92rem; }
+.cheque-months { font-size: 0.75rem; color: var(--text-muted); }
+.cheque-months.partial { color: var(--gold); font-weight: 700; }
+.cheque-amt { font-weight: 800; font-size: 1.08rem; font-variant-numeric: tabular-nums; direction: ltr; }
+.cheque-copy {
+    border: none; background: transparent; cursor: pointer;
+    color: var(--text-muted); border-radius: 8px;
+    width: 32px; height: 32px; display: grid; place-items: center;
+}
+.cheque-copy:hover { background: var(--input-bg); color: var(--royal-gold); }
+.cheque-total {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: var(--input-bg); font-weight: 800;
+}
+.cheque-total .cheque-amt { color: var(--royal-gold); }
+.cheque-panel.guar .cheque-total .cheque-amt { color: var(--gold); }
+
+.results-actionbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    margin-top: 12px;
+    background: linear-gradient(to top, var(--bg-body) 70%, transparent);
+}
+.results-actionbar .btn { flex: 1; max-width: 240px; display: flex; gap: 8px; align-items: center; justify-content: center; padding: 12px 16px; }
+.btn-ghost {
+    background: var(--bg-card);
+    color: var(--royal-gold);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.btn-ghost:hover { background: var(--input-bg); }
+
 .results-disclaimer {
     margin-top: 16px;
     text-align: center;
@@ -864,12 +957,17 @@ tr.current-month:hover {
     
     .client-print-meta {
         width: 100%;
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 24px;
+        margin-top: 16px;
         font-weight: bold;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        text-align: start;
     }
+    #printMeta { grid-column: 1 / -1; font-weight: 600; }
+    #miniToast { display: none !important; }
+    html, body { background: #fff !important; }
 
     /* Force accordion cards open and neutral for printing */
     .accordion-card { border: none !important; box-shadow: none !important; margin-bottom: 14px; }
@@ -901,6 +999,18 @@ tr.current-month:hover {
     tr { break-inside: avoid; break-after: auto; }
     th { background-color: #f1f5f9 !important; color: #000 !important; -webkit-print-color-adjust: exact; border: 1px solid #000; position: static; }
     td { border: 1px solid #000; }
+
+    /* New printout: cheque tables with totals + signature lines */
+    .results-disclaimer { margin-top: 18px; color: #555 !important; }
+    .p-sec { font-size: 1rem; font-weight: 800; margin: 16px 0 6px; color: #3A0A10; }
+    .p-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 8px; }
+    .p-table th, .p-table td { border: 1px solid #333; padding: 7px 8px; text-align: right; }
+    [dir="ltr"] .p-table th, [dir="ltr"] .p-table td { text-align: left; }
+    .p-table th { background: #F3E9E1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .p-table .p-amt { font-weight: 800; direction: ltr; }
+    .p-table tfoot td { font-weight: 800; background: #FAF3EC !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .p-signs { display: flex; gap: 24px; margin-top: 44px; break-inside: avoid; }
+    .p-signs div { flex: 1; border-top: 1px solid #000; padding-top: 6px; text-align: center; font-size: 0.9rem; }
 }
 
 /* ================================= */
