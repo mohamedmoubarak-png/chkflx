@@ -160,7 +160,7 @@ function renderChart(clientCheques, guarantorCheques, hasGuarantor) {
 
     // Pull theme-aware colors from CSS variables
     const css = getComputedStyle(document.body);
-    const blue = (css.getPropertyValue('--electric-blue') || '#2456E5').trim();
+    const blue = (css.getPropertyValue('--electric-blue') || '#8B1E2B').trim();
     const green = (css.getPropertyValue('--success') || '#10B981').trim();
     const gridColor = (css.getPropertyValue('--border-color') || 'rgba(120,140,170,0.2)').trim();
     const textColor = (css.getPropertyValue('--text-muted') || '#56708F').trim();

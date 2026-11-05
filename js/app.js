@@ -65,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         if (isDark) {
             document.body.removeAttribute('data-theme');
-            themeColorMeta.setAttribute('content', '#F4F7FC');
+            themeColorMeta.setAttribute('content', '#FAF6F1');
             try { localStorage.setItem('chequeflex-theme', 'light'); } catch (e) {}
         } else {
             document.body.setAttribute('data-theme', 'dark');
-            themeColorMeta.setAttribute('content', '#050E1F');
+            themeColorMeta.setAttribute('content', '#170609');
             try { localStorage.setItem('chequeflex-theme', 'dark'); } catch (e) {}
         }
     });

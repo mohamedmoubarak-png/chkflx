@@ -9,13 +9,13 @@
     <script src="js/analytics.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#081628" id="themeColorMeta">
+    <meta name="theme-color" content="#170609" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ChequeFlex">
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="chkflx.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <meta name="description" content="أداة حساب مديونية وتسوية شيكات المشروعات الصغيرة">
     
     <title data-i18n="pageTitle">ChequeFlex | حاسبة الشيكات الذكية</title>
@@ -44,23 +44,26 @@
             <!-- Logo -->
             <div class="splash-logo">
                 <span class="logo-ring"></span>
-                <svg width="104" height="104" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="512" height="512" rx="96" fill="#0D1F3C"/>
-                    <path d="M380 136C332 88 268 60 196 60C96 60 16 140 16 240C16 340 96 420 196 420C268 420 332 392 380 344"
-                          stroke="url(#splC)" stroke-width="56" stroke-linecap="round" fill="none"/>
-                    <path d="M120 240L200 320L340 160"
-                          stroke="url(#splK)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    <defs>
-                        <linearGradient id="splC" x1="16" y1="60" x2="380" y2="420" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#4A7FE8"/>
-                            <stop offset="100%" stop-color="#1D50D8"/>
-                        </linearGradient>
-                        <linearGradient id="splK" x1="120" y1="160" x2="340" y2="320" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#C5D0E4"/>
-                            <stop offset="100%" stop-color="#E8EEF8"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+                <svg width="104" height="104" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect width="512" height="512" rx="96" fill="url(#splBg)"/>
+  <rect x="18" y="18" width="476" height="476" rx="80" fill="none" stroke="#E3B65A" stroke-opacity="0.45" stroke-width="5"/>
+  <path d="M362 150A150 150 0 1 0 362 362" stroke="url(#splC)" stroke-width="52" stroke-linecap="round" fill="none"/>
+  <path d="M180 262L238 320L348 196" stroke="url(#splK)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <defs>
+    <linearGradient id="splBg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A3283A"/>
+      <stop offset="100%" stop-color="#4E0D15"/>
+    </linearGradient>
+    <linearGradient id="splC" x1="106" y1="106" x2="406" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6DE9A"/>
+      <stop offset="100%" stop-color="#C08F1E"/>
+    </linearGradient>
+    <linearGradient id="splK" x1="180" y1="196" x2="348" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8EDE0"/>
+    </linearGradient>
+  </defs>
+</svg>
             </div>
             <!-- Name -->
             <div class="splash-name" dir="ltr">Cheque<span>Flex</span></div>
@@ -82,7 +85,7 @@
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: radial-gradient(circle at 50% 38%, #0E2A55 0%, #071A33 45%, #050E1F 100%);
+            background: radial-gradient(circle at 50% 38%, #5A1520 0%, #2E0A10 45%, #170609 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -107,13 +110,13 @@
         }
         #splashScreen::before {
             width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(59,111,245,0.55), transparent 70%);
+            background: radial-gradient(circle, rgba(184,50,63,0.55), transparent 70%);
             top: 10%; inset-inline-start: 6%;
             animation: splGlow1 7s ease-in-out infinite;
         }
         #splashScreen::after {
             width: 340px; height: 340px;
-            background: radial-gradient(circle, rgba(91,134,248,0.32), transparent 70%);
+            background: radial-gradient(circle, rgba(212,168,75,0.30), transparent 70%);
             bottom: 6%; inset-inline-end: 4%;
             animation: splGlow2 8s ease-in-out infinite;
         }
@@ -144,7 +147,7 @@
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent 0deg, #3B6FF5 70deg, #5B86F8 150deg, transparent 260deg);
+            background: conic-gradient(from 0deg, transparent 0deg, #B8323F 70deg, #D4A84B 150deg, transparent 260deg);
             -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
                     mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
             animation: splSpin 2.6s linear infinite;
@@ -152,7 +155,7 @@
         @keyframes splSpin { to { transform: rotate(360deg); } }
         .splash-logo svg {
             animation: splPulse 2.6s ease-in-out infinite;
-            filter: drop-shadow(0 0 26px rgba(59,111,245,0.55));
+            filter: drop-shadow(0 0 26px rgba(212,168,75,0.40));
         }
         @keyframes splPulse {
             0%, 100% { transform: scale(1); }
@@ -163,16 +166,16 @@
             font-family: 'Cairo', sans-serif;
             font-size: 2.2rem;
             font-weight: 800;
-            color: #E8EEF8;
+            color: #F8EDE5;
             letter-spacing: -0.5px;
-            text-shadow: 0 0 24px rgba(59,111,245,0.25);
+            text-shadow: 0 0 24px rgba(212,168,75,0.25);
         }
-        .splash-name span { color: #5B86F8; }
+        .splash-name span { color: #D4A84B; }
         .splash-sub {
             font-family: 'Cairo', sans-serif;
             font-size: 0.92rem;
             font-weight: 600;
-            color: #7FA0CC;
+            color: #CDAFA4;
             margin-top: -8px;
         }
 
@@ -187,8 +190,8 @@
         .splash-progress-bar {
             height: 100%; width: 0;
             border-radius: 4px;
-            background: linear-gradient(90deg, #3B6FF5, #5B86F8);
-            box-shadow: 0 0 12px rgba(59,111,245,0.6);
+            background: linear-gradient(90deg, #B8323F, #D4A84B);
+            box-shadow: 0 0 12px rgba(212,168,75,0.55);
             animation: splLoad 2.4s ease forwards;
         }
         @keyframes splLoad {
@@ -207,10 +210,10 @@
             font-family: 'Cairo', sans-serif;
             font-size: 0.72rem;
             font-weight: 600;
-            color: #5478A4;
+            color: #9A7A72;
             line-height: 1.7;
         }
-        .splash-footer strong { color: #7FA0CC; }
+        .splash-footer strong { color: #CDAFA4; }
     </style>
 
     <!-- Print Header (Hidden on Screen) -->
@@ -229,20 +232,24 @@
         <!-- Navbar -->
         <header class="app-bar no-print">
             <div class="brand" dir="ltr">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M30 10C26.8 6.5 22.2 4 17 4C8.7 4 2 10.7 2 19C2 27.3 8.7 34 17 34C22.2 34 26.8 31.5 30 28" stroke="url(#cfC_idx)" stroke-width="4.2" stroke-linecap="round"/>
-                    <path d="M10 19L15.5 24.5L25 13" stroke="url(#cfK_idx)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="cfC_idx" x1="2" y1="4" x2="30" y2="34" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#4A7FE8"/>
-                            <stop offset="100%" stop-color="#1D50D8"/>
-                        </linearGradient>
-                        <linearGradient id="cfK_idx" x1="10" y1="13" x2="25" y2="24.5" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#C5D0E4"/>
-                            <stop offset="100%" stop-color="#E8EEF8"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+                <svg width="36" height="36" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M362 150A150 150 0 1 0 362 362" stroke="url(#brdC)" stroke-width="52" stroke-linecap="round" fill="none"/>
+  <path d="M180 262L238 320L348 196" stroke="#2B0D11" style="stroke: var(--text-main)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <defs>
+    <linearGradient id="brdBg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A3283A"/>
+      <stop offset="100%" stop-color="#4E0D15"/>
+    </linearGradient>
+    <linearGradient id="brdC" x1="106" y1="106" x2="406" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6DE9A"/>
+      <stop offset="100%" stop-color="#C08F1E"/>
+    </linearGradient>
+    <linearGradient id="brdK" x1="180" y1="196" x2="348" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8EDE0"/>
+    </linearGradient>
+  </defs>
+</svg>
                 Cheque<span>Flex</span>
                 <small>حاسبة الشيكات الذكية</small>
             </div>

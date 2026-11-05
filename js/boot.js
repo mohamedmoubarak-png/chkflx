@@ -17,7 +17,7 @@
         if (localStorage.getItem('chequeflex-theme') === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             var m = document.getElementById('themeColorMeta');
-            if (m) m.setAttribute('content', '#050E1F');
+            if (m) m.setAttribute('content', '#170609');
         }
     } catch (e) {}
 })();
@@ -43,7 +43,7 @@ window.addEventListener('load', function () {
             // Sync browser UI color with the active theme once splash is gone
             var isDark = document.body.getAttribute('data-theme') === 'dark';
             var meta = document.getElementById('themeColorMeta');
-            if (meta) meta.setAttribute('content', isDark ? '#050E1F' : '#F4F7FC');
+            if (meta) meta.setAttribute('content', isDark ? '#170609' : '#FAF6F1');
             setTimeout(function () { splash.remove(); }, 550);
         }, 2500);
     }
