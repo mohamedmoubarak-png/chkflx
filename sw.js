@@ -1,50 +1,89 @@
 /**
  * ============================================================
  *  ChequeFlex — حاسبة الشيكات الذكية
- *  sw.js — Service Worker (Network-Only + Force Update)
+ *  sw.js — Service Worker (Network-First + Offline Cache)
  * ============================================================
  *  © 2026 MSM-FINTECH. جميع الحقوق محفوظة.
  *  تطوير وبناء المبرمج: MOHAMED SAYED MUBARAK
  * ============================================================
  *
- *  Strategy: NETWORK ONLY
- *  — لا يعمل بدون إنترنت (لضمان دقة بيانات قاعدة البيانات)
- *  — عند توفر تحديث جديد يتم التطبيق الفوري على الفور
+ *  Strategy: NETWORK FIRST + CACHE FALLBACK
+ *  — مع الإنترنت يجلب أحدث نسخة دائماً
+ *  — بدون إنترنت يعمل من النسخة المخزّنة (لا توجد قاعدة بيانات)
+ *  — عند توفر تحديث جديد يتم التطبيق الفوري
  * ============================================================
  */
 
-const SW_VERSION = 'chequeflex-sw-v4';
+const SW_VERSION = 'chequeflex-sw-v6';
+const CACHE_NAME = SW_VERSION;
+
+// ملفات التطبيق الأساسية — تُخزَّن لتشغيل الحاسبة بدون إنترنت
+const APP_SHELL = [
+    './',
+    './index.html',
+    './manifest.json',
+    './chkflx.png',
+    './icons/icon.svg',
+    './css/style.css',
+    './js/analytics.js',
+    './js/boot.js',
+    './js/i18n.js',
+    './js/calculator.js',
+    './js/ui.js',
+    './js/products.js',
+    './js/data-loader.js',
+    './js/app.js',
+    './js/vendor/chart.umd.min.js'
+];
 
 // ─── INSTALL ────────────────────────────────────────────────
-// نتجاوز مرحلة الانتظار فوراً لضمان تفعيل النسخة الجديدة
 self.addEventListener('install', event => {
-    console.log(`[SW ${SW_VERSION}] Installing — skipping wait...`);
-    self.skipWaiting(); // ⚡ تفعيل فوري بدون انتظار إغلاق التبويبات
-});
-
-// ─── ACTIVATE ───────────────────────────────────────────────
-// نستولي على جميع العملاء المفتوحين فوراً بعد التفعيل
-self.addEventListener('activate', event => {
-    console.log(`[SW ${SW_VERSION}] Activated — claiming all clients...`);
     event.waitUntil(
-        // حذف أي caches قديمة إن وُجدت
-        caches.keys()
-            .then(keys => Promise.all(keys.map(key => caches.delete(key))))
-            .then(() => self.clients.claim()) // 🎯 استولِ على جميع التبويبات
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(APP_SHELL))
+            .catch(err => console.warn(`[SW ${SW_VERSION}] Precache failed:`, err))
+            .then(() => self.skipWaiting())
     );
 });
 
-// ─── FETCH — Network Only ───────────────────────────────────
+// ─── ACTIVATE ───────────────────────────────────────────────
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys()
+            .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+            .then(() => self.clients.claim())
+    );
+});
+
+// ─── FETCH — Network First, Cache Fallback ──────────────────
+//  — مع الإنترنت: أحدث نسخة دائماً (وتحديث الكاش)
+//  — بدون إنترنت: النسخة المخزّنة، فتعمل الحاسبة كاملة
 self.addEventListener('fetch', event => {
-    // تجاهل طلبات Chrome Extensions أو غير HTTP
-    if (!event.request.url.startsWith('http')) return;
+    const req = event.request;
+    if (req.method !== 'GET' || !req.url.startsWith('http')) return;
+
+    const sameOrigin = new URL(req.url).origin === self.location.origin;
+    // الطلبات الخارجية (خطوط/تحليلات) تمر كما هي بدون تدخل
+    if (!sameOrigin) return;
 
     event.respondWith(
-        fetch(event.request)
-            .catch(() => {
-                // ❌ لا إنترنت — أرجع صفحة خطأ احترافية
-                return buildOfflinePage();
+        fetch(req)
+            .then(res => {
+                if (res && res.ok) {
+                    const copy = res.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(req, copy)).catch(() => {});
+                }
+                return res;
             })
+            .catch(() =>
+                caches.match(req, { ignoreSearch: true }).then(cached => {
+                    if (cached) return cached;
+                    if (req.mode === 'navigate') {
+                        return caches.match('./index.html').then(page => page || buildOfflinePage());
+                    }
+                    return Response.error();
+                })
+            )
     );
 });
 
